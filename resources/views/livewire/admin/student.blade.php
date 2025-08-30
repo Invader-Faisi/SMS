@@ -91,7 +91,7 @@ class extends Component {
         }
     }
 
-    public function updateStudent(\App\Services\StudentManagementServices $studentServices)
+    public function updateStudent(\App\Services\StudentManagementServices $studentServices): void
     {
         $studentForm = $this->validateFields();
         if ($this->updateImage != null && $this->image == null) {
@@ -185,7 +185,7 @@ class extends Component {
                     <flux:select.option value="null">Parent List...</flux:select.option>
                     @foreach($parents as $parent)
                         <flux:select.option value="{{ $parent->parent_id }}">
-                            {{ $parent->name }}
+                            {{ $parent->name }} - {{ $parent->mobile }}
                         </flux:select.option>
                     @endforeach
                 </flux:select>

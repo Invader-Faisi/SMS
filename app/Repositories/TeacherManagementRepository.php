@@ -28,7 +28,7 @@ class TeacherManagementRepository
     public function getLastTeacherIdData()
     {
         try {
-            return Teacher::latest('id')->first();
+            return Teacher::orderByRaw("CAST(SUBSTRING(teacher_id, 7) AS UNSIGNED) DESC")->first();;
         } catch (\Exception $e) {
             return 'Error : '.$e->getMessage();
         }

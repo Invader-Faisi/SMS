@@ -65,8 +65,8 @@ class StudentManagementServices
         if(!empty($studentData['image'])){
             if ($studentData['image'] instanceof UploadedFile) {
                 // new file uploaded
-                $studentId = $studentData['image'];
-                $imagePath = $studentId->store('users/students', 'public');
+                $studentImage = $studentData['image'];
+                $imagePath = $studentImage->store('users/students', 'public');
                 $studentData['image'] = $imagePath;
             }
         }

@@ -67,6 +67,7 @@
                         </flux:select>
                     </div>
                     @else
+                        <flux:input wire:model="email" :label="__('Email')" class="w-full p-2"/>
                         <flux:input wire:model="address" :label="__('Home Address')" class="w-full p-2"/>
                         <flux:input wire:model="qualification" :label="__('Qualification')" class="w-full p-2"/>
                         <flux:select wire:model="designation" :label="__('Designation...')">
@@ -77,7 +78,7 @@
                                 <flux:select.option value="Teacher">Teacher</flux:select.option>
                             @elseif($page == 'Staff')
                                 <flux:select.option value="Accountant">Accountant</flux:select.option>
-                                <flux:select.option value="Office Boy">Office Boy</flux:select.option>
+                                <flux:select.option value="OfficeBoy">Office Boy</flux:select.option>
                                 <flux:select.option value="Mali">Mali</flux:select.option>
                                 <flux:select.option value="Guard">Guard</flux:select.option>
                                 <flux:select.option value="Misc">Misc</flux:select.option>

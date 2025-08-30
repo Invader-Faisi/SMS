@@ -33,7 +33,7 @@ class StaffManagementRepository
     public function getLastStaffIdData()
     {
         try{
-            return Staff::Latest('id')->first();
+            return Staff::orderByRaw("CAST(SUBSTRING(staff_id, 7) AS UNSIGNED) DESC")->first();
         }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
         }

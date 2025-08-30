@@ -33,7 +33,7 @@ class ParentManagementRepository
     public function getLastParentIdData()
     {
         try{
-            return Parents::Latest('id')->first();
+            return Parents::orderByRaw("CAST(SUBSTRING(parent_id, 7) AS UNSIGNED) DESC")->first();
         }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
         }
