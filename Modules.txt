@@ -1,0 +1,15 @@
+Administration:
+    User Management:
+        Staff:
+            Fields:
+                Name, Email, Password, Mobile, Address, Qualification, Designation (Accountant, OfficeBoy, Mali, Guard, Misc), Image
+        Teachers:
+            Fields:
+                Name, Email, Password, Mobile, Address, Qualification, Designation (ClassTeacher, SubjectSpecialist, Teacher), Image
+        Parents:
+            Fields:
+                Name, Email, Password, Mobile, Address, Qualification, Student_Id
+        Students:
+            Fields:
+                Name, Email, Password, Mobile, Address, Class, Section, Parent_Id
+
