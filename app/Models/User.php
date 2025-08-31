@@ -20,11 +20,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'username',
-        'name',
-        'email',
         'password',
-        'mobile',
-        'address',
+        'role',
     ];
 
     /**
@@ -45,7 +42,6 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
     }
@@ -55,10 +51,10 @@ class User extends Authenticatable
      */
     public function initials(): string
     {
-        return Str::of($this->name)
-            ->explode(' ')
-            ->take(2)
-            ->map(fn ($word) => Str::substr($word, 0, 1))
-            ->implode('');
+        $role = trim($this->role); // remove extra spaces
+        $first = Str::substr($role, 0, 1); // first letter
+        $last  = Str::substr($role, -1);   // last letter
+
+        return strtoupper($first . $last); // combine & uppercase
     }
 }

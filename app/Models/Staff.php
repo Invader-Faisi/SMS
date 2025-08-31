@@ -17,6 +17,7 @@ class Staff extends Model
         'staff_id',
         'image',
         'name',
+        'cnic',
         'email',
         'password',
         'mobile',
@@ -28,8 +29,13 @@ class Staff extends Model
     #[Scope]
     public function scopeSearch(Builder $query,$value):void
     {
-        $query->where('name','LIKE',"%{$value}%")
-            ->orWhere('staff_id','LIKE',"%{$value}%");
+        if (!empty($value)) {
+            $query->where(function ($q) use ($value) {
+                $q->where('name', 'LIKE', "%{$value}%")
+                    ->orWhere('staff_id', 'LIKE', "%{$value}%")
+                    ->orWhere('cnic', 'LIKE', "%{$value}%");
+            });
+        }
 
     }
 }

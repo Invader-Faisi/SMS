@@ -10,6 +10,7 @@
                 <!-- Left Column -->
                 <div class="form-group w-full md:w-1/2 px-2">
                     <flux:input wire:model="name" :label="__('Full Name')" class="w-full p-2"/>
+                    <flux:input wire:model="{{ $page === 'Student' ? 'b_form' : 'cnic' }}" mask="99999-9999999-9" :label="$page === 'Student' ? __('B-Form') : __('CNIC')" class="w-full p-2"/>
                     <flux:input wire:model="password" type="text" :label="__('Password')" class="w-full p-2"/>
                     @if($page != 'Student')
                     <flux:input wire:model="mobile" :label="__('Mobile Number')" class="w-full p-2"/>
@@ -35,7 +36,7 @@
                             <flux:select.option value="">Select Parent...</flux:select.option>
                             @foreach($parents as $parent)
                                 <flux:select.option value="{{ $parent->parent_id }}">
-                                    {{ $parent->name }}
+                                    {{ $parent->name }} - {{ $parent->mobile }}
                                 </flux:select.option>
                             @endforeach
                         </flux:select>

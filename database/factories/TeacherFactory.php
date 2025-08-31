@@ -23,14 +23,23 @@ class TeacherFactory extends Factory
      */
     public function definition(): array
     {
+        // Generate a short username and domain to fit within 24 chars
+        $username = substr(fake()->userName(), 0, 10);   // max 10 chars
+        $domain   = substr(fake()->domainName(), 0, 10); // max 10 chars
+        $email    = $username . '@' . $domain;
+
+        // Ensure total email length <= 24
+        $email = substr($email, 0, 24);
+
         return [
             'teacher_id' => null,
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => substr(fake()->name(), 0, 23),
+            'cnic' => fake()->numerify('#####-#######-#'),
+            'email' => $email,
             'password' => '12345678',
             'image'=> 'users/teachers/MUomwBVJMuLvWGEzIZSAbbig0V7qmDa7HblLnmIC.jpg',
             'address' => fake()->address(),
-            'mobile' => fake()->phoneNumber(),
+            'mobile' => fake()->numerify('###########'),
             'designation' => 'Teacher',
             'qualification' => 'MSC',
         ];

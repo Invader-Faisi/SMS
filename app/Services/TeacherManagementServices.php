@@ -84,11 +84,8 @@ class TeacherManagementServices
     {
         $newUser = new User();
         $newUser['username'] = $teacher['username'];
-        $newUser['name'] = $teacher['name'];
-        $newUser['email'] = $teacher['email'];
+        $newUser['role'] = 'Teacher';
         $newUser['password'] = Hash::make($teacher['password']);
-        $newUser['mobile'] = $teacher['mobile'];
-        $newUser['address'] = $teacher['address'];
 
         return $this->teacherRepository->addToUsersData($newUser);
     }

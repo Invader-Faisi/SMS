@@ -83,11 +83,8 @@ class ParentManagementServices
     {
         $newUser = new User();
         $newUser['username'] = $parent['username'];
-        $newUser['name'] = $parent['name'];
-        $newUser['email'] = $parent['email'];
+        $newUser['role'] = 'Parent';
         $newUser['password'] = Hash::make($parent['password']);
-        $newUser['mobile'] = $parent['mobile'];
-        $newUser['address'] = $parent['address'];
 
         return $this->parentRepository->addToUsersData($newUser);
     }

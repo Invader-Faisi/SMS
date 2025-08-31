@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('parents', function (Blueprint $table) {
             $table->id();
-            $table->string('parent_id')->unique();
+            $table->string('parent_id',11)->unique();
             $table->string('image');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('mobile');
+            $table->string('name',24);
+            $table->string('cnic',16)->unique();
+            $table->string('email',32)->unique();
+            $table->string('password',12);
+            $table->string('mobile',11)->unique();
             $table->string('address');
-            $table->string('qualification');
-            $table->string('designation')->nullable();
+            $table->string('qualification',11);
+            $table->string('designation',16)->nullable();
             $table->timestamps();
         });
     }

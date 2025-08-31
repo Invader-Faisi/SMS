@@ -14,6 +14,7 @@ class Teacher extends Model
         'teacher_id',
         'image',
         'name',
+        'cnic',
         'email',
         'password',
         'mobile',
@@ -25,8 +26,13 @@ class Teacher extends Model
     #[Scope]
     public function scopeSearch(Builder $query,$value):void
     {
-        $query->where('name','LIKE',"%{$value}%")
-            ->orWhere('teacher_id','LIKE',"%{$value}%");
+        if (!empty($value)) {
+            $query->where(function ($q) use ($value) {
+                $q->where('name', 'LIKE', "%{$value}%")
+                    ->orWhere('teacher_id', 'LIKE', "%{$value}%")
+                    ->orWhere('cnic', 'LIKE', "%{$value}%");
+            });
+        }
 
     }
 }

@@ -28,6 +28,7 @@ class extends Component {
     public $image = null;
     public string $name = '';
     public string $email = '';
+    public string $cnic = '';
     public string $mobile = '';
     public string $address = '';
     public string $password = '';
@@ -64,6 +65,16 @@ class extends Component {
         ];
     }
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPerPage(): void
+    {
+        $this->resetPage();
+    }
+
     public function saveParent(\App\Services\ParentManagementServices $parentServices): void
     {
         $parentForm = $this->validateFields();
@@ -85,6 +96,7 @@ class extends Component {
             $this->parent_id = $parent->parent_id;
             $this->updateImage = $parent->image;
             $this->name = $parent->name;
+            $this->cnic = $parent->cnic;
             $this->email = $parent->email;
             $this->password = $parent->password;
             $this->mobile = $parent->mobile;
@@ -124,7 +136,8 @@ class extends Component {
         if($parent !== null){
             $this->parent_id = $parent->parent_id;
             $parent = $parentServices->deleteParent($this->parent_id);
-            if ($parent > 0) {
+
+            if ($parent === true) {
                 $this->dispatch('notify', type: 'success', message: 'Parent deleted successfully.');
             }else{
                 $this->dispatch('notify', type: 'error', message: $parent);
@@ -139,6 +152,7 @@ class extends Component {
             return $this->validate([
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
+                'cnic' => ['required', 'string', 'max:16'],
                 'email' => ['required', 'string', 'email', 'max:255'],
                 'mobile' => ['required', 'string', 'min:11', 'max:11'],
                 'address' => ['required', 'string', 'max:255'],
@@ -150,8 +164,9 @@ class extends Component {
             return $this->validate([
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'mobile' => ['required', 'string', 'min:11', 'max:11', 'unique:users'],
+                'cnic' => ['required', 'string', 'max:255', 'unique:parents'],
+                'email' => ['required', 'string', 'email', 'max:255'],
+                'mobile' => ['required', 'string', 'min:11', 'max:11', 'unique:parents'],
                 'address' => ['required', 'string', 'max:255'],
                 'qualification' => ['required', 'string', 'max:255'],
                 'designation' => ['required', 'string', 'max:255'],
@@ -223,7 +238,7 @@ class extends Component {
                                     <span class="text-neutral-900 dark:text-white">{{$parent->name}}</span>
                                     <span class="text-neutral-500 dark:text-white">{{$parent->mobile}}</span>
                                     <span
-                                        class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{$parent->email}}</span>
+                                        class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{$parent->cnic}}</span>
                                     <span class="text-neutral-900 dark:text-white">{{$parent->address}}</span>
                                 </div>
                             </div>

@@ -9,11 +9,9 @@ use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.auth')] class extends Component {
-    public string $name = '';
-    public string $email = '';
-    public string $mobile = '';
-    public string $address = '';
+    public string $username = '';
     public string $password = '';
+    public string $role = 'Admin';
     public string $password_confirmation = '';
 
     /**
@@ -22,10 +20,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public function register(): void
     {
         $validated = $this->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
-            'mobile' => ['required', 'digits:11'],
-            'address' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:255'],
+            'role' => ['required', 'string', 'max:12'],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -48,43 +44,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <form method="POST" wire:submit="register" class="flex flex-col gap-6">
         <!-- Name -->
         <flux:input
-            wire:model="name"
-            :label="__('Name')"
+            wire:model="username"
+            :label="__('Username')"
             type="text"
             required
             autofocus
             autocomplete="name"
-            :placeholder="__('Full name')"
-        />
-
-        <!-- Email Address -->
-        <flux:input
-            wire:model="email"
-            :label="__('Email address')"
-            type="email"
-            required
-            autocomplete="email"
-            placeholder="email@example.com"
-        />
-
-        <!-- Mobile -->
-        <flux:input
-            wire:model="mobile"
-            :label="__('Mobile Number')"
-            type="text"
-            required
-            autocomplete="mobile no"
-            placeholder="0300-0000000"
-        />
-
-        <!-- Mobile -->
-        <flux:input
-            wire:model="address"
-            :label="__('Address')"
-            type="text"
-            required
-            autocomplete="address"
-            placeholder="Address"
+            :placeholder="__('Username')"
         />
 
         <!-- Password -->

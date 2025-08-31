@@ -26,7 +26,8 @@ class StudentFactory extends Factory
         return [
             'student_id' => null,
             'parent_id' => null,
-            'name' => fake()->name(),
+            'name' => substr(fake()->name(), 0, 23),
+            'b_form' => fake()->numerify('#####-#######-#'),
             'password' => '12345678',
             'image'=> 'users/students/MUomwBVJMuLvWGEzIZSAbbig0V7qmDa7HblLnmIC.jpg',
             'class' => null,

@@ -39,7 +39,7 @@ class DatabaseSeeder extends Seeder
 //            ])
 //            ->create();
 
-        $classes = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+        $classes = ['Nursery','Prep','I','II','III','IV','V','VI','VII','VIII','IX','X'];
         $sections = ['A','B','C','D','E','F'];
         Student::factory()
             ->count(20)

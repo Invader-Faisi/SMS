@@ -28,6 +28,7 @@ class extends Component {
 //    Form fields
     public $image = null;
     public string $name = '';
+    public string $cnic = '';
     public string $email = '';
     public string $mobile = '';
     public string $address = '';
@@ -42,7 +43,7 @@ class extends Component {
     public string $page = 'Teacher';
 
 //    Table variables
-    #[Url(history: true)]
+   #[Url(history: true)]
     public $search;
 
     #[Url(history: true)]
@@ -63,6 +64,16 @@ class extends Component {
                 $this->sortDirection
             ),
         ];
+    }
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPerPage(): void
+    {
+        $this->resetPage();
     }
 
     public function saveTeacher(\App\Services\TeacherManagementServices $teacherServices): void
@@ -86,6 +97,7 @@ class extends Component {
             $this->teacher_id = $teacher->teacher_id;
             $this->updateImage = $teacher->image;
             $this->name = $teacher->name;
+            $this->cnic = $teacher->cnic;
             $this->email = $teacher->email;
             $this->password = $teacher->password;
             $this->mobile = $teacher->mobile;
@@ -140,6 +152,7 @@ class extends Component {
             return $this->validate([
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
+                'cnic' => ['required', 'string', 'max:16'],
                 'email' => ['required', 'string', 'email', 'max:255'],
                 'mobile' => ['required', 'string', 'min:11', 'max:11'],
                 'address' => ['required', 'string', 'max:255'],
@@ -151,8 +164,9 @@ class extends Component {
             return $this->validate([
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'mobile' => ['required', 'string', 'min:11', 'max:11', 'unique:users'],
+                'cnic' => ['required', 'string', 'max:16', 'unique:teachers'],
+                'email' => ['required', 'string', 'email', 'max:255'],
+                'mobile' => ['required', 'string', 'min:11', 'max:11', 'unique:teachers'],
                 'address' => ['required', 'string', 'max:255'],
                 'qualification' => ['required', 'string', 'max:255'],
                 'designation' => ['required', 'string', 'max:255'],
@@ -176,11 +190,11 @@ class extends Component {
     <div class="space-y-2">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-3">
             <div class="w-full lg:w-52">
-                <flux:input wire:model.live.debounce.1000ms="search" icon="magnifying-glass" placeholder="Search orders"
+                <flux:input wire:model.live.debounce.500ms="search" icon="magnifying-glass" placeholder="Search orders"
                             class="text-sm"/>
             </div>
             <div class="flex flex-col lg:flex-row gap-2 w-full lg:w-auto">
-                <flux:select wire:model.live.debounce.200ms="perPage">
+                <flux:select wire:model.live.debounce.500ms="perPage">
                     <flux:select.option value="null">Choose Per Page Record...</flux:select.option>
                     <flux:select.option>5</flux:select.option>
                     <flux:select.option>10</flux:select.option>
@@ -224,7 +238,7 @@ class extends Component {
                                     <span class="text-neutral-900 dark:text-white">{{$teacher->name}}</span>
                                     <span class="text-neutral-500 dark:text-white">{{$teacher->mobile}}</span>
                                     <span
-                                        class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{$teacher->email}}</span>
+                                        class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{$teacher->cnic}}</span>
                                     <span class="text-neutral-900 dark:text-white">{{$teacher->address}}</span>
                                 </div>
                             </div>

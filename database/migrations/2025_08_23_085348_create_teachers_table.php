@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
-            $table->string('teacher_id')->unique();
+            $table->string('teacher_id',11)->unique();
             $table->string('image');
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->string('mobile');
+            $table->string('name',24);
+            $table->string('cnic',16)->unique();
+            $table->string('email',32)->unique();
+            $table->string('password',12);
+            $table->string('mobile',11)->unique();
             $table->string('address');
-            $table->string('qualification');
+            $table->string('qualification',11);
             $table->enum('designation', ['ClassTeacher','SubjectSpecialist', 'Teacher'])->default('Teacher');
             $table->timestamps();
         });

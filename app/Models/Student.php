@@ -16,6 +16,7 @@ class Student extends Model
         'parent_id',
         'image',
         'name',
+        'b_form',
         'password',
         'class',
         'section',

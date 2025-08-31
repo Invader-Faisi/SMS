@@ -84,11 +84,8 @@ class StaffManagementServices
     {
         $newUser = new User();
         $newUser['username'] = $staff['username'];
-        $newUser['name'] = $staff['name'];
-        $newUser['email'] = $staff['email'];
+        $newUser['role'] = 'Staff';
         $newUser['password'] = Hash::make($staff['password']);
-        $newUser['mobile'] = $staff['mobile'];
-        $newUser['address'] = $staff['address'];
 
         return $this->staffRepository->addToUsersData($newUser);
     }

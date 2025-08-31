@@ -30,6 +30,7 @@ class extends Component {
 //    Form fields
     public $image = null;
     public string $name = '';
+    public string $cnic = '';
     public string $email = '';
     public string $mobile = '';
     public string $address = '';
@@ -67,6 +68,16 @@ class extends Component {
         ];
     }
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPerPage(): void
+    {
+        $this->resetPage();
+    }
+
     public function saveStaff(StaffManagementServices $staffServices): void
     {
         $staffForm = $this->validateFields();
@@ -89,6 +100,7 @@ class extends Component {
             $this->staff_id = $staff->staff_id;
             $this->updateImage = $staff->image;
             $this->name = $staff->name;
+            $this->cnic = $staff->cnic;
             $this->email = $staff->email;
             $this->password = $staff->password;
             $this->mobile = $staff->mobile;
@@ -143,6 +155,7 @@ class extends Component {
             return $this->validate([
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
+                'cnic' => ['required', 'string', 'max:16'],
                 'email' => ['required', 'string', 'email', 'max:255'],
                 'mobile' => ['required', 'string', 'min:11', 'max:11'],
                 'address' => ['required', 'string', 'max:255'],
@@ -154,8 +167,9 @@ class extends Component {
             return $this->validate([
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-                'mobile' => ['required', 'string', 'min:11', 'max:11', 'unique:users'],
+                'cnic' => ['required', 'string', 'max:16', 'unique:staffs'],
+                'email' => ['required', 'string', 'email', 'max:255'],
+                'mobile' => ['required', 'string', 'min:11', 'max:11', 'unique:staffs'],
                 'address' => ['required', 'string', 'max:255'],
                 'qualification' => ['required', 'string', 'max:255'],
                 'designation' => ['required', 'string', 'max:255'],
@@ -228,7 +242,7 @@ class extends Component {
                                     <span class="text-neutral-900 dark:text-white">{{$staff->name}}</span>
                                     <span class="text-neutral-500 dark:text-white">{{$staff->mobile}}</span>
                                     <span
-                                        class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{$staff->email}}</span>
+                                        class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{$staff->cnic}}</span>
                                     <span class="text-neutral-900 dark:text-white">{{$staff->address}}</span>
                                 </div>
                             </div>

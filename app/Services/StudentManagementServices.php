@@ -86,19 +86,36 @@ class StudentManagementServices
 
     public function addToUsers($student): bool|string
     {
-        $parent = $this->getParent($student['parent_id']);
         $newUser = new User();
         $newUser['username'] = $student['username'];
-        $newUser['name'] = $student['name'];
-        $newUser['email'] = $parent->email;
+        $newUser['role'] = 'Student';
         $newUser['password'] = Hash::make($student['password']);
-        $newUser['mobile'] = $parent->mobile;
-        $newUser['address'] = $parent->address;
 
         return $this->studentRepository->addToUsersData($newUser);
     }
 
+    public function updateStudentID(string $class, string $section, string $previousId)
+    {
+        $lastStudent = $this->studentRepository->getLastStudentIdData();
 
+        // Generating new student_id
+        if ($lastStudent && $lastStudent->student_id) {
+            $lastNumber = (int) str_replace('SMS-'.$class.'-'.$section.'-', '', $lastStudent->student_id);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 0001;
+        }
+
+        $newStudentId = 'SMS-'.$class.'-'.$section.'-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+
+        $response = $this->studentRepository->updateStudentUsername($newStudentId,$previousId);
+        if($response > 0){
+            return $newStudentId;
+        }else{
+            return false;
+        }
+
+    }
 
 
 }

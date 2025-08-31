@@ -84,4 +84,13 @@ class StudentManagementRepository
         }
     }
 
+    public function updateStudentUsername(string $newStudentId,$previousId)
+    {
+        try{
+            return \App\Models\User::where('username', $previousId)->update(['username' => $newStudentId]);
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
 }

@@ -15,6 +15,7 @@ class Parents extends Model
         'parent_id',
         'image',
         'name',
+        'cnic',
         'email',
         'password',
         'mobile',
@@ -31,8 +32,13 @@ class Parents extends Model
     #[Scope]
     public function scopeSearch(Builder $query,$value):void
     {
-        $query->where('name','LIKE',"%{$value}%")
-            ->orWhere('parent_id','LIKE',"%{$value}%");
+        if (!empty($value)) {
+            $query->where(function ($q) use ($value) {
+                $q->where('name', 'LIKE', "%{$value}%")
+                    ->orWhere('parent_id', 'LIKE', "%{$value}%")
+                    ->orWhere('cnic', 'LIKE', "%{$value}%");
+            });
+        }
 
     }
 }

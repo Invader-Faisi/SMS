@@ -60,9 +60,18 @@ class ParentManagementRepository
     public function deleteParentData($parentId)
     {
         try{
-            return Parents::where('parent_id', $parentId)->delete();
+            $parent = Parents::where('parent_id', $parentId)->first();
+
+            if (!$parent) {
+                return 'Parent not found.';
+            }
+            $parent->delete();
+            return true;
         }catch (\Exception $e){
-            return 'Error : '.$e->getMessage();
+            if ($e->getCode() == "23000" && str_contains($e->getMessage(), '1451')) {
+                return "Cannot delete parent: student records are still linked.";
+            }
+            return "Error: " . $e->getMessage();
         }
     }
 

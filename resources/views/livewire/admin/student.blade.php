@@ -1,5 +1,6 @@
 <?php
 
+use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 use Flux\Flux;
 use Illuminate\View\View;
@@ -27,21 +28,27 @@ class extends Component {
     public $image = null;
     public string $parent_id = '';
     public string $name = '';
+    public string $b_form = '';
     public string $password = '';
     public string $class = '';
     public string $section = '';
 
     //    helper variables
+    public $previous_class = null;
+    public $previous_section = null;
     public $updateImage = null;
     public $student_id;
     public $isEditMode = false;
     public string $page = 'Student';
 
     //    Table variables
+    #[Url(history: true)]
     public $search;
 
+    #[Url(history: true)]
     public $perPage = 5;
 
+    #[Url(history: true)]
     public $sortedBy = 'student_id';
 
     public $sortDirection = 'DESC';
@@ -58,6 +65,16 @@ class extends Component {
             ),
             'parents' => \App\Models\Parents::orderBy('name')->get(),
         ];
+    }
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingPerPage(): void
+    {
+        $this->resetPage();
     }
 
     public function saveStudent(\App\Services\StudentManagementServices $studentServices): void
@@ -82,9 +99,12 @@ class extends Component {
             $this->parent_id = $student->parent_id;
             $this->updateImage = $student->image;
             $this->name = $student->name;
+            $this->b_form = $student->b_form;
             $this->password = $student->password;
             $this->class = $student->class;
             $this->section = $student->section;
+            $this->previous_class = $student->class;
+            $this->previous_section = $student->section;
 
             $this->isEditMode = true;
             Flux::modal('add-' . $this->page)->show();
@@ -98,7 +118,17 @@ class extends Component {
             $studentForm['image'] = $this->updateImage;
         }
 
+        if($this->class !== $this->previous_class || $this->section !== $this->previous_section){
+            $newStudentId = $studentServices->updateStudentID($this->class,$this->section,$this->student_id);
+            if(!$newStudentId){
+                $this->dispatch('notify', type: 'error', message: $newStudentId);
+            }else{
+                $studentForm['student_id'] = $newStudentId;
+            }
+        }
+
         $student = $studentServices->updateStudent($studentForm, $this->student_id);
+
 
         if ($student > 0) {
             $this->reset();
@@ -115,12 +145,12 @@ class extends Component {
     public function delete(\App\Services\StudentManagementServices $studentServices, $id): void
     {
         $student = $studentServices->getStudentById($id);
-        if($student !== null){
+        if ($student !== null) {
             $this->student_id = $student->student_id;
             $student = $studentServices->deleteStudent($this->student_id);
             if ($student > 0) {
                 $this->dispatch('notify', type: 'success', message: 'Student deleted successfully.');
-            }else{
+            } else {
                 $this->dispatch('notify', type: 'error', message: $student);
             }
             $this->reset();
@@ -131,9 +161,11 @@ class extends Component {
     {
         if ($this->isEditMode) {
             return $this->validate([
+                'student_id' => ['required', 'string', 'max:24'],
                 'parent_id' => ['required', 'string', 'max:255'],
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
+                'b_form' => ['required', 'string', 'max:16'],
                 'class' => ['required', 'string', 'max:255'],
                 'section' => ['required', 'string', 'max:255'],
                 'password' => ['required', 'string', 'min:8'],
@@ -143,6 +175,7 @@ class extends Component {
                 'parent_id' => ['required', 'string', 'max:255'],
                 'image' => ['nullable', 'image', 'max:2048'],
                 'name' => ['required', 'string', 'max:255'],
+                'b_form' => ['required', 'string', 'max:16', 'unique:students'],
                 'class' => ['required', 'string', 'max:255'],
                 'section' => ['required', 'string', 'max:255'],
                 'password' => ['required', 'string', 'min:8'],
@@ -157,10 +190,6 @@ class extends Component {
         $this->isEditMode = false;
         Flux::modal('add-' . $this->page)->close();
     }
-
-
-
-
 
 
 }; ?>
@@ -225,17 +254,16 @@ class extends Component {
                                      class="size-8 rounded-full object-cover" alt="Staff Image">
                                 <div class="flex flex-col">
                                     <span class="text-neutral-900 dark:text-white">{{$student->name}}</span>
+                                    <span class="text-neutral-900 dark:text-white">{{$student->b_form}}</span>
                                     <p class="text-pink-800 mt-2 font-bold text-md">Parental Information</p>
                                     <span class="text-success dark:text-white">{{$student->parent->name}}</span>
                                     <span class="text-neutral-500 dark:text-white">{{$student->parent->mobile}}</span>
-                                    <span
-                                        class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{$student->parent->email}}</span>
                                     <span class="text-neutral-900 dark:text-white">{{$student->parent->address}}</span>
                                 </div>
                             </div>
                         </td>
                         <td class="p-4">{{$student->password}}</td>
-                        <td class="p-4 text-lg text-primary text-center" >{{$student->class}}</td>
+                        <td class="p-4 text-lg text-primary text-center">{{$student->class}}</td>
                         <td class="p-4"><span
                                 class="inline-flex overflow-hidden rounded-radius border-success px-1 py-0.5 text-lg text-center font-medium text-success bg-success/10">{{$student->section}}</span>
                         </td>
