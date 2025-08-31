@@ -18,10 +18,14 @@ class TeacherManagementRepository
 
     public function getTeacherByIdData($id)
     {
-        try {
-            return Teacher::findOrFail($id);
-        } catch (\Exception $e) {
-            return 'Error : '.$e->getMessage();
+        try{
+            if (is_numeric($id)) {
+                return Teacher::findOrFail($id);
+            } else {
+                return Teacher::where('teacher_id', $id)->firstOrFail();
+            }
+        }catch (\Exception $e){
+            return null;
         }
     }
 
@@ -48,6 +52,15 @@ class TeacherManagementRepository
         try {
             return Teacher::where('teacher_id',$teacherId)->update($teacherData);
         } catch (\Exception $e) {
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
+    public function updateTeacherPassword($newPass, $teacherId)
+    {
+        try{
+            return \App\Models\User::where('username', $teacherId)->update(['password' => $newPass]);
+        }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
         }
     }

@@ -123,6 +123,8 @@ class extends Component {
             $this->isEditMode = false;
             $this->dispatch('notify', type: 'success', message: 'Parent updated successfully.');
 
+        }elseif($parent === false){
+            $this->dispatch('notify', type: 'error', message: 'Failed to Update password for Login');
         } else {
             $this->dispatch('notify', type: 'error', message: $parent);
         }

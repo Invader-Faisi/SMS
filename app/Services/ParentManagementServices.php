@@ -71,8 +71,19 @@ class ParentManagementServices
             }
         }
 
+        $parent = $this->parentRepository->getParentByIdData($parentId);
+
+        if($parent->password !== $parentData['password']){
+            $newPassword = Hash::make($parentData['password']);
+            $response = $this->parentRepository->updateParentPassword($newPassword,$parentId);
+            if($response < 1){
+                return false;
+            }
+        }
+
         return $this->parentRepository->updateParentData($parentData,$parentId);
     }
+
 
     public function deleteParent($parentId)
     {

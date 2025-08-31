@@ -72,6 +72,16 @@ class TeacherManagementServices
             }
         }
 
+        $teacher = $this->teacherRepository->getTeacherByIdData($teacherId);
+
+        if($teacher->password !== $teacherData['password']){
+            $newPassword = Hash::make($teacherData['password']);
+            $response = $this->teacherRepository->updateTeacherPassword($newPassword,$teacherId);
+            if($response < 1){
+                return false;
+            }
+        }
+
         return $this->teacherRepository->updateTeacherData($teacherData,$teacherId);
     }
 

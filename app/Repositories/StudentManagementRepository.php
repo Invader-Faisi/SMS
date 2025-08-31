@@ -24,9 +24,13 @@ class StudentManagementRepository
     public function getStudentByIdData($id)
     {
         try{
-            return Student::findOrfail($id);
+            if (is_numeric($id)) {
+                return Student::findOrFail($id);
+            } else {
+                return Student::where('student_id', $id)->firstOrFail();
+            }
         }catch (\Exception $e){
-            return 'Error : '.$e->getMessage();
+            return null;
         }
     }
 
@@ -57,6 +61,24 @@ class StudentManagementRepository
         }
     }
 
+    public function updateStudentPassword($newPass, $studentId)
+    {
+        try{
+            return \App\Models\User::where('username', $studentId)->update(['password' => $newPass]);
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
+    public function updateStudentUsername(string $newStudentId,$previousId)
+    {
+        try{
+            return \App\Models\User::where('username', $previousId)->update(['username' => $newStudentId]);
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
     public function getParentData($parentId)
     {
         try{
@@ -79,15 +101,6 @@ class StudentManagementRepository
     {
         try{
             return $newUser->save();
-        }catch (\Exception $e){
-            return 'Error : '.$e->getMessage();
-        }
-    }
-
-    public function updateStudentUsername(string $newStudentId,$previousId)
-    {
-        try{
-            return \App\Models\User::where('username', $previousId)->update(['username' => $newStudentId]);
         }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
         }

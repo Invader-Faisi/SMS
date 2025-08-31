@@ -24,9 +24,13 @@ class StaffManagementRepository
     public function getStaffByIdData($id)
     {
         try{
-            return Staff::findOrfail($id);
+            if (is_numeric($id)) {
+                return Staff::findOrFail($id);
+            } else {
+                return Staff::where('staff_id', $id)->firstOrFail();
+            }
         }catch (\Exception $e){
-            return 'Error : '.$e->getMessage();
+            return null;
         }
     }
 
@@ -52,6 +56,15 @@ class StaffManagementRepository
     {
         try{
             return Staff::where('staff_id', $staffId)->update($staffData);
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
+    public function updateStaffPassword($newPass, $staffId)
+    {
+        try{
+            return \App\Models\User::where('username', $staffId)->update(['password' => $newPass]);
         }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
         }

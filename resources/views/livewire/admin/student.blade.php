@@ -128,14 +128,14 @@ class extends Component {
         }
 
         $student = $studentServices->updateStudent($studentForm, $this->student_id);
-
-
         if ($student > 0) {
             $this->reset();
             $this->isEditMode = false;
             $this->dispatch('notify', type: 'success', message: 'Student updated successfully.');
 
-        } else {
+        }elseif($student === false){
+            $this->dispatch('notify', type: 'error', message: 'Failed to Update password for Login');
+        }else{
             $this->dispatch('notify', type: 'error', message: $student);
         }
         $this->closeModal();

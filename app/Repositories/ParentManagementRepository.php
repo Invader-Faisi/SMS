@@ -24,9 +24,13 @@ class ParentManagementRepository
     public function getParentByIdData($id)
     {
         try{
-            return Parents::findOrfail($id);
+            if (is_numeric($id)) {
+                return Parents::findOrFail($id);
+            } else {
+                return Parents::where('parent_id', $id)->firstOrFail();
+            }
         }catch (\Exception $e){
-            return 'Error : '.$e->getMessage();
+            return null;
         }
     }
 
@@ -52,6 +56,15 @@ class ParentManagementRepository
     {
         try{
             return Parents::where('parent_id', $parentId)->update($parentData);
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
+    public function updateParentPassword($newPass, $parentId)
+    {
+        try{
+            return \App\Models\User::where('username', $parentId)->update(['password' => $newPass]);
         }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
         }

@@ -83,7 +83,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <!-- username -->
         <flux:input
             wire:model="username"
-            :label="__('username address')"
+            :label="__('Username')"
             type="text"
             required
             autofocus

@@ -124,6 +124,8 @@ class extends Component {
             $this->isEditMode = false;
             $this->dispatch('notify', type: 'success', message: 'Teacher updated successfully.');
 
+        } elseif($teacher === false){
+            $this->dispatch('notify', type: 'error', message: 'Failed to Update password for Login');
         } else {
             $this->dispatch('notify', type: 'error', message: $teacher);
         }

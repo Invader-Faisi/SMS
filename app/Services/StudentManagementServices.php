@@ -71,7 +71,41 @@ class StudentManagementServices
             }
         }
 
+        $student = $this->studentRepository->getStudentByIdData($studentId);
+
+        if($student->password !== $studentData['password']){
+            $newPassword = Hash::make($studentData['password']);
+            $response = $this->studentRepository->updateStudentPassword($newPassword,$studentId);
+
+            if($response < 1){
+                return false;
+            }
+        }
+
         return $this->studentRepository->updateStudentData($studentData,$studentId);
+    }
+
+    public function updateStudentID(string $class, string $section, string $previousId): false|string
+    {
+        $lastStudent = $this->studentRepository->getLastStudentIdData();
+
+        // Generating new student_id
+        if ($lastStudent && $lastStudent->student_id) {
+            $lastNumber = (int) str_replace('SMS-'.$class.'-'.$section.'-', '', $lastStudent->student_id);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 0001;
+        }
+
+        $newStudentId = 'SMS-'.$class.'-'.$section.'-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
+
+        $response = $this->studentRepository->updateStudentUsername($newStudentId,$previousId);
+        if($response > 0){
+            return $newStudentId;
+        }else{
+            return false;
+        }
+
     }
 
     public function getParent($studentId)
@@ -94,28 +128,7 @@ class StudentManagementServices
         return $this->studentRepository->addToUsersData($newUser);
     }
 
-    public function updateStudentID(string $class, string $section, string $previousId)
-    {
-        $lastStudent = $this->studentRepository->getLastStudentIdData();
 
-        // Generating new student_id
-        if ($lastStudent && $lastStudent->student_id) {
-            $lastNumber = (int) str_replace('SMS-'.$class.'-'.$section.'-', '', $lastStudent->student_id);
-            $newNumber = $lastNumber + 1;
-        } else {
-            $newNumber = 0001;
-        }
-
-        $newStudentId = 'SMS-'.$class.'-'.$section.'-' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
-
-        $response = $this->studentRepository->updateStudentUsername($newStudentId,$previousId);
-        if($response > 0){
-            return $newStudentId;
-        }else{
-            return false;
-        }
-
-    }
 
 
 }

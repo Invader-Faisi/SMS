@@ -72,6 +72,16 @@ class StaffManagementServices
             }
         }
 
+        $staff = $this->staffRepository->getStaffByIdData($staffId);
+
+        if($staff->password !== $staffData['password']){
+            $newPassword = Hash::make($staffData['password']);
+            $response = $this->staffRepository->updateStaffPassword($newPassword,$staffId);
+            if($response < 1){
+                return false;
+            }
+        }
+
         return $this->staffRepository->updateStaffData($staffData,$staffId);
     }
 
