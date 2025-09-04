@@ -1,7 +1,8 @@
 @props(['title' => null, 'navbarHeading' => null])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-    <head>
+{{--Head--}}
+<head>
         @include('partials.head')
         @fluxAppearance
     </head>
@@ -24,6 +25,12 @@
                 <flux:navlist.item icon="users" :href="route('admin.parent')" :current="request()->routeIs('admin.parent')" wire:navigate>{{ __('Parents') }}</flux:navlist.item>
                 <flux:navlist.item icon="academic-cap" :href="route('admin.student')" :current="request()->routeIs('admin.student')" wire:navigate>{{ __('New Admission') }}</flux:navlist.item>
             </flux:navlist.group>
+            <flux:navlist.group heading="Class Management" expandable>
+                <flux:navlist.item icon="building-library" :href="route('admin.classes')" :current="request()->routeIs('admin.classes')" wire:navigate>{{ __('Classes') }}</flux:navlist.item>
+                <flux:navlist.item icon="user-group" :href="route('admin.staff')" :current="request()->routeIs('admin.staff')" wire:navigate>{{ __('Staffs') }}</flux:navlist.item>
+                <flux:navlist.item icon="users" :href="route('admin.parent')" :current="request()->routeIs('admin.parent')" wire:navigate>{{ __('Parents') }}</flux:navlist.item>
+                <flux:navlist.item icon="academic-cap" :href="route('admin.student')" :current="request()->routeIs('admin.student')" wire:navigate>{{ __('New Admission') }}</flux:navlist.item>
+            </flux:navlist.group>
             <flux:navlist.item href="#" icon="list-bullet">Transactions</flux:navlist.item>
         </flux:navlist>
         <flux:spacer />
@@ -32,7 +39,7 @@
         <flux:dropdown class="lg:hidden lg:block" position="bottom" align="start">
 
             <flux:profile
-                :name="auth()->user()->name"
+                :name="auth()->user()->username"
                 :initials="auth()->user()->initials()"
                 icon:trailing="chevrons-up-down"
             />
@@ -81,7 +88,7 @@
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
                 <p class="text-2xl text-indigo-700 font-bold mx-2 hidden md:block">School Management System</p>
                 <flux:separator vertical/>
-                <flux:heading size="lg" level="1" class="ml-4 hidden md:block">{{ $navbarHeading ?? 'Teachers Management'}}</flux:heading>
+                <flux:heading size="lg" level="1" class="ml-4 hidden md:block">{{ $navbarHeading ?? ''}}</flux:heading>
                 <flux:spacer class="flex-grow"/>
             <flux:navlist variant="outline" class="hidden md:block">
                 <flux:navlist.item href="#" icon="list-bullet">Settings</flux:navlist.item>

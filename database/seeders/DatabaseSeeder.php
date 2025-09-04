@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Classes;
 use App\Models\Parents;
 use App\Models\Staff;
 use App\Models\Student;
@@ -9,6 +10,7 @@ use App\Models\Teacher;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -39,29 +41,46 @@ class DatabaseSeeder extends Seeder
 //            ])
 //            ->create();
 
-        $classes = ['Nursery','Prep','I','II','III','IV','V','VI','VII','VIII','IX','X'];
-        $sections = ['A','B','C','D','E','F'];
-        Student::factory()
-            ->count(20)
-            ->sequence(function ($sequence) use ($classes, $sections) {
-                // Random class & section for each student
-                $class = $classes[array_rand($classes)];
-                $section = $sections[array_rand($sections)];
+//        $classes = ['Nursery','Prep','I','II','III','IV','V','VI','VII','VIII','IX','X'];
+//        $sections = ['A','B','C','D','E','F'];
+//        Student::factory()
+//            ->count(20)
+//            ->sequence(function ($sequence) use ($classes, $sections) {
+//                // Random class & section for each student
+//                $class = $classes[array_rand($classes)];
+//                $section = $sections[array_rand($sections)];
+//
+//                return [
+//                    'class' => $class,
+//                    'section' => $section,
+//                    'student_id' => sprintf(
+//                        'SMS-%s-%s-%04d',
+//                        $class,
+//                        $section,
+//                        $sequence->index + 1
+//                    ),
+//                    'parent_id' => 'SMS-P-' . str_pad($sequence->index + 1, 4, '0', STR_PAD_LEFT),
+//                ];
+//            })
+//            ->create();
 
-                return [
-                    'class' => $class,
-                    'section' => $section,
-                    'student_id' => sprintf(
-                        'SMS-%s-%s-%04d',
-                        $class,
-                        $section,
-                        $sequence->index + 1
-                    ),
-                    'parent_id' => 'SMS-P-' . str_pad($sequence->index + 1, 4, '0', STR_PAD_LEFT),
-                ];
-            })
-            ->create();
 
+        $classNames = Classes::$classes;
+        $sections   = Classes::$sections;
+
+        // 3. Insert in exact order
+        foreach ($classNames as $class) {
+            foreach ($sections as $section) {
+                $classId = "{$class}-{$section}";
+
+                Classes::factory()->create([
+                    'class_id'      => $classId,
+                    'teacher_id'    => 'SMS-T-0021',
+                    'capacity'      => 30,
+                    'academic_year' => now()->year.'-01-01',
+                ]);
+            }
+        }
 
 //        User::factory()->create([
 //            'name' => 'Test User',

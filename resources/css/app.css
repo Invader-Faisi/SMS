@@ -104,8 +104,4 @@ select:focus[data-flux-control] {
     @apply size-4;
 } */
 
-.form-group div[role="alert"] {
-    margin-top: 0 !important;
-}
-
 

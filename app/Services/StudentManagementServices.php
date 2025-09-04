@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Student;
 use App\Models\User;
 use App\Repositories\StudentManagementRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 class StudentManagementServices
@@ -128,7 +129,10 @@ class StudentManagementServices
         return $this->studentRepository->addToUsersData($newUser);
     }
 
-
+    public function getStudentsByClass(string $id)
+    {
+        return $this->studentRepository->getStudentsByClassData($id);
+    }
 
 
 }

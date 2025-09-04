@@ -106,4 +106,15 @@ class StudentManagementRepository
         }
     }
 
+    public function getStudentsByClassData(string $id)
+    {
+        try{
+            [$class, $section] = explode('-', $id);
+
+            return Student::where('class', $class)->where('section', $section)->get();
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
 }

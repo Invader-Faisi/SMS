@@ -20,6 +20,8 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('admin/staff', 'admin.staff')->name('admin.staff');
     Volt::route('admin/parent', 'admin.parent')->name('admin.parent');
     Volt::route('admin/student', 'admin.student')->name('admin.student');
+    Volt::route('admin/classes', 'admin.classes')->name('admin.classes');
+    Volt::route('admin/classes/{id}', 'admin.partials.class')->name('admin.classes.class');
 
     // Settings
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
