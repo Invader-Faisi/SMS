@@ -31,10 +31,10 @@ class ClassManagementRepository
         }
     }
 
-    public function assignNewTeacherToClassData(?string $class_id, ?string $teacher_id)
+    public function updateClassData(?string $class_id, ?string $teacher_id, ?string $academic_year)
     {
         try{
-            return Classes::where('class_id', $class_id)->update(['teacher_id' => $teacher_id]);
+            return Classes::where('class_id', $class_id)->update(['teacher_id' => $teacher_id , 'academic_year'=> $academic_year]);
         }catch (\Exception $e){
             return 'Error: ' . $e->getMessage();
         }

@@ -18,6 +18,7 @@ class extends Component {
     public Collection $teachersList;
     public ?string $teacher_id = null;
     public ?string $class_id = null;
+    public ?string $academic_year = null;
 
     public function rendering(View $view): void
     {
@@ -51,29 +52,34 @@ class extends Component {
         $this->resetPage();
     }
 
-        public function showTeachers(\App\Services\ClassManagementServices $classServices, $id): void
+    public function showTeachers($id, $academic_year, \App\Services\ClassManagementServices $classServices): void
     {
         $class = $classServices->getClassById($id);
+
         if ($class !== null) {
             $this->class_id = $class->class_id;
+            $this->academic_year = $academic_year;
             $this->teachersList = $classServices->getTeachersList();
             Flux::modal('show-teachers')->show();
         }
     }
 
-    public function assignNewTeacher(\App\Services\ClassManagementServices $classServices): void
+
+    public function updateClass(\App\Services\ClassManagementServices $classServices): void
     {
         if (empty($this->teacher_id) || $this->teacher_id === "null") {
             $this->dispatch('notify', type: 'error', message: 'Please Select the Teacher First');
             return;
         }
 
-        $response = $classServices->assignNewTeacherToClass($this->class_id, $this->teacher_id);
+        $response = $classServices->updateClass($this->class_id, $this->teacher_id, $this->academic_year);
         if ($response > 0) {
             $this->dispatch('notify', type: 'success', message: 'Teacher Added to ' . $this->class_id . ' successfully.');
             $this->reset(['teacher_id', 'class_id']);
-        } else {
+        } elseif(is_string($response)) {
             $this->dispatch('notify', type: 'error', message: $response);
+        }elseif($response === 0){
+            $this->dispatch('notify', type: 'error', message: 'No record found to update !!!');
         }
         Flux::modal('show-teachers')->close();
 
@@ -121,7 +127,7 @@ class extends Component {
                         </flux:button>
                         <!-- Teacher Update -->
                         <flux:button tooltip="Assign Class Teacher" variant="primary" color="yellow" size="xs"
-                                     class="cursor-pointer" wire:click="showTeachers({{$class->id}})">
+                                     class="cursor-pointer" wire:click="showTeachers({{ $class->id }}, '{{ $class->academic_year }}')">
                             <flux:icon.pencil variant="solid" class="size-4"/>
                         </flux:button>
 
@@ -141,11 +147,11 @@ class extends Component {
     <flux:modal name="show-teachers" class="w-full">
         <div class="space-y-6">
             <div>
-                <flux:heading size="xl" class="text-primary">Assign New Teacher</flux:heading>
+                <flux:heading size="xl" class="text-primary">Update Class</flux:heading>
             </div>
 
-            <div class="flex gap-2">
-                <flux:select wire:model="teacher_id">
+            <div class="flex flex-col gap-2">
+                <flux:select wire:model="teacher_id" :label="__('Teachers')">
                     <flux:select.option value="null">Teachers List...</flux:select.option>
                     @foreach($teachersList as $teacher)
                         <flux:select.option value="{{ $teacher->teacher_id }}">
@@ -153,16 +159,19 @@ class extends Component {
                         </flux:select.option>
                     @endforeach
                 </flux:select>
+                <flux:input type="date" wire:model="academic_year" :label="__('Academic Year')"  />
                 <flux:spacer/>
+                <div class="flex flex-row gap-2">
+                    <flux:modal.close>
+                        <flux:button variant="ghost" class="cursor-pointer"
+                                     x-on:click="$flux.modal('show-teachers').close()">Cancel
+                        </flux:button>
+                    </flux:modal.close>
 
-                <flux:modal.close>
-                    <flux:button variant="ghost" class="cursor-pointer"
-                                 x-on:click="$flux.modal('show-teachers').close()">Cancel
+                    <flux:button wire:click="updateClass" variant="danger" class="cursor-pointer">
+                        Update Class
                     </flux:button>
-                </flux:modal.close>
-
-                <flux:button wire:click="assignNewTeacher" variant="danger" class="cursor-pointer">Assign New Teacher
-                </flux:button>
+                </div>
             </div>
         </div>
     </flux:modal>

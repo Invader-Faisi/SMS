@@ -13,7 +13,7 @@
 {{--Brand logo--}}
         <div class="flex items-center space-x-2">
             <flux:avatar size="xl" src="{{ asset('/logo.png') }}" />
-            <p class="text-lg font-semibold hidden sm:block">SMS</p>
+            <p class="text-lg text-green-700 dark:text-white font-semibold hidden sm:block">SMS</p>
         </div>
         <flux:separator />
 {{--Sidebar Menu--}}
@@ -86,7 +86,7 @@
     <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
         <flux:navbar scrollable class="w-full">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
-                <p class="text-2xl text-indigo-700 font-bold mx-2 hidden md:block dark:text-white">School Management System</p>
+                <p class="text-2xl text-indigo-700 font-bold mx-2 hidden md:block dark:text-white">DigiPaeds School System</p>
                 <flux:separator vertical/>
                 <flux:heading size="lg" level="1" class="ml-4 hidden md:block">{{ $navbarHeading ?? ''}}</flux:heading>
                 <flux:spacer class="flex-grow"/>

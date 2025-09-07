@@ -23,9 +23,9 @@ class ClassManagementServices
         return $this->classRepository->getTeachersListData();
     }
 
-    public function assignNewTeacherToClass(?string $class_id, ?string $teacher_id)
+    public function updateClass(?string $class_id, ?string $teacher_id, ?string $academic_year)
     {
-        return $this->classRepository->assignNewTeacherToClassData($class_id, $teacher_id);
+        return $this->classRepository->updateClassData($class_id, $teacher_id,$academic_year);
     }
 
     public function getClassById($id)
