@@ -41,8 +41,7 @@ class Classes extends Model
     {
         if (!empty($value)) {
             $query->where(function ($q) use ($value) {
-                $q->where('class_id', 'LIKE', "%{$value}%")
-                    ->orWhere('subject', 'LIKE', "%{$value}%");
+                $q->where('class_id', 'LIKE', "%{$value}%");
             });
         }
     }

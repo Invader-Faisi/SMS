@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\ClassManagementRepository;
 use App\Repositories\TeacherManagementRepository;
 use App\Repositories\TimeTableManagementRepository;
+use Carbon\Carbon;
 
 class TimeTableManagementServices
 {
@@ -47,6 +48,35 @@ class TimeTableManagementServices
     public function saveWeekTimeTable(array $bulkData): true|string
     {
         return $this->timeTableRepository->saveWeekTimeTableData($bulkData);
+    }
+
+    public function getPeriod($id)
+    {
+        return $this->timeTableRepository->getPeriodData($id);
+    }
+
+    public function updatePeriod($period, $timetable_id)
+    {
+        if($period['period'] !== 1)
+        {
+            $previous_period =  $this->timeTableRepository->getPeriodData($timetable_id, $period['period'] - 1, $period['class_id']);
+            if($previous_period){
+                $minStart = Carbon::parse($previous_period->end_time)->addMinutes(5);
+                $currentStart = Carbon::parse($period['start_time']);
+
+                if ($currentStart->lt($minStart)) {
+                    return false;
+                }
+
+                return $this->timeTableRepository->updatePeriodData($period, $timetable_id);
+            }
+        }
+        return $this->timeTableRepository->updatePeriodData($period, $timetable_id);
+    }
+
+    public function getTimeTableByClass(string $class)
+    {
+        return $this->timeTableRepository->getTimeTableByClassData($class);
     }
 
 }

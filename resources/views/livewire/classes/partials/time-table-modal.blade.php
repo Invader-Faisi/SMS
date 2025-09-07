@@ -1,4 +1,4 @@
-<flux:modal name="add-{{$page}}" class="w-full max-w-4xl md:max-w-3xl lg:max-w-5xl p-2 space-y-4">
+<flux:modal name="addTimeTable" class="w-full max-w-4xl md:max-w-3xl lg:max-w-5xl p-2 space-y-4">
     <div class="space-y-6">
         <div>
             Add Time Table For Whole of the Week
@@ -65,10 +65,10 @@
                 @endforeach
             @endforeach
             <div class="flex justify-end gap-2 mt-2">
-                <flux:button variant="filled" class="cursor-pointer" wire:click="closeModal">Cancel</flux:button>
+                <flux:button variant="filled" class="cursor-pointer" x-on:click="$flux.modal('addTimeTable').close()">Cancel</flux:button>
                 <flux:button type="submit" wire:loading.attr="disabled" wire:target="image"
                              variant="primary" color="blue" class="cursor-pointer ms-2">
-                    {{ $isEditMode ? 'Update' : 'Save' }}
+                    Save
                 </flux:button>
             </div>
         </form>

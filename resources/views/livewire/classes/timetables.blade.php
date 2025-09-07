@@ -40,7 +40,6 @@ class extends Component {
 
     //    helper variables
     public $timetable_id;
-    public $isEditMode = false;
     public string $page = 'TimeTable';
 
 
@@ -227,7 +226,7 @@ class extends Component {
         $class = $classServices->getClassById($this->class_id);
 
         if (!$class) {
-            $this->totalSubjects = ['Math', 'English', 'Physics', 'Biology or Computer', 'Chemistry', 'Urdu', 'History', 'Social Studies', 'Islamiat', 'Science'];
+            $this->totalSubjects = [];
             return;
         }
         $grade = preg_replace('/[- ].*/', '', $class->class_id);
@@ -245,15 +244,52 @@ class extends Component {
         };
     }
 
-    public function closeModal(): void
+    public function showPeriod(TimeTableManagementServices $timeTableServices, $id): void
     {
-        $this->reset();
-        $this->isEditMode = false;
-        Flux::modal('add-' . $this->page)->close();
+        $period = $timeTableServices->getPeriod($id);
+        if($period !== null){
+            $this->timetable_id = $id;
+            $this->class_id = $period->class_id;
+            $this->teacher_id = $period->teacher_id;
+            $this->subject = $period->subject;
+            $this->period = $period->period;
+            $this->days = $period->days;
+            $this->start_time = $period->start_time;
+
+            $this->start_time = Carbon::parse($period->start_time)->format('H:i');
+            $this->updateClass($this->class_id);
+            Flux::modal('updatePeriod')->show();
+        }
     }
+
+    public function updatePeriod(TimeTableManagementServices $timeTableServices): void
+    {
+        $period = $this->validate([
+            'class_id'   => ['required', 'exists:classes,class_id'],
+            'teacher_id' => ['required', 'exists:teachers,teacher_id'],
+            'days'       => ['required', Rule::in(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'])],
+            'period'     => ['required', 'integer', 'min:1', 'max:8'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'subject'    => ['required'],
+        ]);
+        $end_time = Carbon::createFromFormat('H:i', $period['start_time'])->addMinutes(40);
+        $period['end_time'] = $end_time->format('H:i');
+
+        $response = $timeTableServices->updatePeriod($period,$this->timetable_id);
+        if ($response > 0) {
+            $this->reset();
+            $this->dispatch('notify', type: 'success', message: 'Period updated successfully.');
+        }elseif($response === false){
+            $this->dispatch('notify', type: 'error', message: 'Add 5 Minutes Difference from Previous Period End Time ');
+        }else{
+            $this->dispatch('notify', type: 'error', message: $response);
+        }
+        Flux::modal('updatePeriod')->close();
+    }
+
 }; ?>
 
-<section class="p-2">
+<section class="mt-12 p-2">
     {{-- Parent Table--}}
     <div class="space-y-2">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-3">
@@ -266,7 +302,7 @@ class extends Component {
                     <flux:select.option>120</flux:select.option>
                     <flux:select.option>800</flux:select.option>
                 </flux:select>
-                <flux:modal.trigger name="add-{{ $page }}">
+                <flux:modal.trigger name="addTimeTable">
                     <flux:button variant="primary" color="indigo" icon="plus-circle" class="cursor-pointer">
                         Add {{$page}}
                     </flux:button>
@@ -303,8 +339,7 @@ class extends Component {
                         <td colspan="8" class="bg-gray-200 p-2 font-bold text-center text-black">
                             <div class="flex justify-between items-center">
                                 <span class="pl-5"> {{ $classId }} </span>
-                                <flux:button icon="eye" variant="primary" size="xs" class="cursor-pointer"
-                                             wire:click="viewDay('{{ $classId }}')">
+                                <flux:button href="{{ route('classes.timetable', ['id' => $classId]) }}" icon:trailing="eye" >
                                     View
                                 </flux:button>
                             </div>
@@ -353,7 +388,7 @@ class extends Component {
                                             </flux:modal.trigger>
                                             <flux:button variant="primary" color="yellow" size="xs"
                                                          class="cursor-pointer"
-                                                         wire:click="showTimeTable({{ $timetable->id }})">
+                                                         wire:click="showPeriod({{ $timetable->id }})">
                                                 <flux:icon.pencil variant="solid" class="size-4"/>
                                             </flux:button>
                                         </div>
@@ -377,5 +412,60 @@ class extends Component {
             <livewire:common.delete/>
         </div>
     </div>
-    @include('livewire.classes.partials.time-table-modal', ['isEditMode' => $isEditMode, 'page' => $page])
+
+{{--    period modal --}}
+    <flux:modal name="updatePeriod" class="w-full max-w-3xl md:max-w-2xl lg:max-w-4xl">
+        <div class="space-y-6">
+
+            <h3>Update Period Data</h3>
+
+            <form wire:submit.prevent="updatePeriod" enctype="multipart/form-data">
+                <div class="flex flex-wrap -mx-2">
+                    <!-- Left Column -->
+                    <div class="form-group w-full md:w-1/2 px-2 space-y-4">
+                        <flux:input wire:model="class_id" :label="__('Class')" class="w-full p-2" disabled/>
+                        <flux:select wire:model="subject" :label="__('Subject')" class="w-full p-2">
+                            <flux:select.option value="">Select Subject...</flux:select.option>
+                            @foreach($totalSubjects ?? [] as $subject)
+                                <flux:select.option value="{{ $subject }}">
+                                    {{ $subject }}
+                                </flux:select.option>
+                            @endforeach
+                        </flux:select>
+                        <flux:select wire:model="teacher_id" :label="__('Teacher')" class="w-full p-2">
+                            <flux:select.option value="">Select Teacher...</flux:select.option>
+                            @foreach($totalTeachers ?? [] as $teacher)
+                                <flux:select.option value="{{ $teacher->teacher_id }}">
+                                    {{ $teacher->name }} - {{ $teacher->designation }}
+                                </flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="form-group w-full md:w-1/2 px-2 space-y-2">
+                        <flux:input wire:model="days" :label="__('Day')" class="w-full p-2" disabled/>
+                        <flux:input type="time" wire:model="start_time" :label="__('Start Time')" class="w-full p-2"/>
+                        <flux:select wire:model="period" :label="__('Period')" class="w-full p-2">
+                            <flux:select.option value="">Select Period...</flux:select.option>
+                            @foreach($totalPeriods ?? [] as $period)
+                                <flux:select.option value="{{ $period }}">
+                                    {{ $period }}
+                                </flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <flux:button variant="filled" class="cursor-pointer" x-on:click="$flux.modal('updatePeriod').close()">Cancel</flux:button>
+                    <flux:button type="submit" wire:loading.attr="disabled" variant="primary" color="blue" class="cursor-pointer ms-2">
+                        Update Period
+                    </flux:button>
+                </div>
+            </form>
+        </div>
+    </flux:modal>
+
+    @include('livewire.classes.partials.time-table-modal')
 </section>

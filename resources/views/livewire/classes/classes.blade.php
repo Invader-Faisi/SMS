@@ -87,7 +87,7 @@ class extends Component {
 
 }; ?>
 
-<section class="p-2 space-y-4">
+<section class="mt-12 p-2 space-y-4">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-3 p-2">
         <div class="w-full">
             <flux:input wire:model.live.debounce.1000ms="search" icon="magnifying-glass" placeholder="Search Class..."
@@ -101,7 +101,7 @@ class extends Component {
                 <!-- Images -->
                 <div class="relative h-24">
                     <div
-                        class="relative z-10 mx-auto mt-5 size-24 overflow-hidden rounded-full border-4 border-surface-alt dark:border-surface-dark-alt">
+                        class="relative mx-auto mt-5 size-24 overflow-hidden rounded-full border-4 border-surface-alt dark:border-surface-dark-alt">
                         <img src="{{ asset('storage/' . $class->teacher->image) }}"
                              class="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
                              alt="avatar"/>
