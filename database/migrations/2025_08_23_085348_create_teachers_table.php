@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('mobile',11)->unique();
             $table->string('address');
             $table->string('qualification',11);
-            $table->enum('designation', ['ClassTeacher','SubjectSpecialist', 'Teacher'])->default('Teacher');
+            $table->string('designation')->default('Teacher');
             $table->timestamps();
         });
     }

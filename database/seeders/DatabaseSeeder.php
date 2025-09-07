@@ -26,21 +26,21 @@ class DatabaseSeeder extends Seeder
 //                'teacher_id' => 'SMS-T-' . str_pad($sequence->index + 1, 4, '0', STR_PAD_LEFT),
 //            ])
 //            ->create();
-
+//
 //        Staff::factory()
 //            ->count(20)
 //            ->sequence(fn ($sequence) => [
 //                'staff_id' => 'SMS-S-' . str_pad($sequence->index + 1, 4, '0', STR_PAD_LEFT),
 //            ])
 //            ->create();
-
+//
 //        Parents::factory()
 //            ->count(20)
 //            ->sequence(fn ($sequence) => [
 //                'parent_id' => 'SMS-P-' . str_pad($sequence->index + 1, 4, '0', STR_PAD_LEFT),
 //            ])
 //            ->create();
-
+//
 //        $classes = ['Nursery','Prep','I','II','III','IV','V','VI','VII','VIII','IX','X'];
 //        $sections = ['A','B','C','D','E','F'];
 //        Student::factory()
@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
 
                 Classes::factory()->create([
                     'class_id'      => $classId,
-                    'teacher_id'    => 'SMS-T-0021',
+                    'teacher_id'    => 'SMS-T-0001',
                     'capacity'      => 30,
                     'academic_year' => now()->year.'-01-01',
                 ]);

@@ -13,9 +13,9 @@ class ClassManagementServices
         $this->classRepository = $classRepository;
     }
 
-    public function getClassesList(): \Illuminate\Database\Eloquent\Collection|string
+    public function getClassesList($search): \Illuminate\Database\Eloquent\Collection|string
     {
-        return $this->classRepository->getClassesListData();
+        return $this->classRepository->getClassesListData($search);
     }
 
     public function getTeachersList(): \Illuminate\Database\Eloquent\Collection|string

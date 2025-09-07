@@ -26,8 +26,8 @@
                 <flux:navlist.item icon="academic-cap" :href="route('admin.student')" :current="request()->routeIs('admin.student')" wire:navigate>{{ __('New Admission') }}</flux:navlist.item>
             </flux:navlist.group>
             <flux:navlist.group heading="Class Management" expandable>
-                <flux:navlist.item icon="building-library" :href="route('admin.classes')" :current="request()->routeIs('admin.classes')" wire:navigate>{{ __('Classes') }}</flux:navlist.item>
-                <flux:navlist.item icon="user-group" :href="route('admin.staff')" :current="request()->routeIs('admin.staff')" wire:navigate>{{ __('Staffs') }}</flux:navlist.item>
+                <flux:navlist.item icon="building-library" :href="route('classes')" :current="request()->routeIs('classes')" wire:navigate>{{ __('Classes') }}</flux:navlist.item>
+                <flux:navlist.item icon="table-cells" :href="route('classes.timetable')" :current="request()->routeIs('classes.timetable')" wire:navigate>{{ __('Time Tables') }}</flux:navlist.item>
                 <flux:navlist.item icon="users" :href="route('admin.parent')" :current="request()->routeIs('admin.parent')" wire:navigate>{{ __('Parents') }}</flux:navlist.item>
                 <flux:navlist.item icon="academic-cap" :href="route('admin.student')" :current="request()->routeIs('admin.student')" wire:navigate>{{ __('New Admission') }}</flux:navlist.item>
             </flux:navlist.group>
@@ -86,7 +86,7 @@
     <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
         <flux:navbar scrollable class="w-full">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
-                <p class="text-2xl text-indigo-700 font-bold mx-2 hidden md:block">School Management System</p>
+                <p class="text-2xl text-indigo-700 font-bold mx-2 hidden md:block dark:text-white">School Management System</p>
                 <flux:separator vertical/>
                 <flux:heading size="lg" level="1" class="ml-4 hidden md:block">{{ $navbarHeading ?? ''}}</flux:heading>
                 <flux:spacer class="flex-grow"/>

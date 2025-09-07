@@ -129,9 +129,9 @@ class StudentManagementServices
         return $this->studentRepository->addToUsersData($newUser);
     }
 
-    public function getStudentsByClass(string $id)
+    public function getStudentsByClass(string $id, $search): Collection|string
     {
-        return $this->studentRepository->getStudentsByClassData($id);
+        return  $this->studentRepository->getStudentsByClassData($id, $search);
     }
 
 

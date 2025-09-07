@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 
 class Classes extends Model
 {
@@ -27,6 +29,22 @@ class Classes extends Model
     public function teacher(): BelongsTo
     {
         return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+    }
+
+    public function timetables(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Timetable::class, 'class_id', 'class_id');
+    }
+
+    #[Scope]
+    public function scopeSearch(Builder $query,$value):void
+    {
+        if (!empty($value)) {
+            $query->where(function ($q) use ($value) {
+                $q->where('class_id', 'LIKE', "%{$value}%")
+                    ->orWhere('subject', 'LIKE', "%{$value}%");
+            });
+        }
     }
 
 }

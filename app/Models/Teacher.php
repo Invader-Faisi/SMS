@@ -23,6 +23,11 @@ class Teacher extends Model
         'designation',
     ];
 
+    public function timetables(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Timetable::class, 'teacher_id', 'teacher_id');
+    }
+
     #[Scope]
     public function scopeSearch(Builder $query,$value):void
     {

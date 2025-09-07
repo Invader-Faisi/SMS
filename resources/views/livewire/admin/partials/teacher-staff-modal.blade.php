@@ -74,9 +74,18 @@
                         <flux:select wire:model="designation" :label="__('Designation...')">
                             <flux:select.option>Select Designation</flux:select.option>
                             @if($page == 'Teacher')
-                                <flux:select.option value="ClassTeacher">Class Teacher</flux:select.option>
-                                <flux:select.option value="SubjectSpecialist">Subject Specialist</flux:select.option>
                                 <flux:select.option value="Teacher">Teacher</flux:select.option>
+                                <flux:select.option value="Teacher-Math">Teacher - Math</flux:select.option>
+                                <flux:select.option value="Teacher-Science">Teacher - Science</flux:select.option>
+                                <flux:select.option value="Teacher-Urdu">Teacher - Urdu</flux:select.option>
+                                <flux:select.option value="Teacher-English">Teacher - English</flux:select.option>
+                                <flux:select.option value="Teacher-Social Studies">Teacher - Social Studies</flux:select.option>
+                                <flux:select.option value="Teacher-Biology">Teacher - Biology</flux:select.option>
+                                <flux:select.option value="Teacher-Chemistry">Teacher - Chemistry</flux:select.option>
+                                <flux:select.option value="Teacher-Physics">Teacher - Physics</flux:select.option>
+                                <flux:select.option value="Teacher-History">Teacher - History</flux:select.option>
+                                <flux:select.option value="Teacher-Computer">Teacher - Computer</flux:select.option>
+                                <flux:select.option value="Teacher-Islamiat">Teacher - Islamiat</flux:select.option>
                             @elseif($page == 'Staff')
                                 <flux:select.option value="Accountant">Accountant</flux:select.option>
                                 <flux:select.option value="OfficeBoy">Office Boy</flux:select.option>

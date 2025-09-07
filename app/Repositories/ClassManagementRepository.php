@@ -13,10 +13,10 @@ class ClassManagementRepository
 //
     }
 
-    public function getClassesListData(): \Illuminate\Database\Eloquent\Collection|string
+    public function getClassesListData($search): \Illuminate\Database\Eloquent\Collection|string
     {
         try{
-            return Classes::all();
+            return Classes::search($search)->get();
         }catch (\Exception $e){
             return 'Error: ' . $e->getMessage();
         }

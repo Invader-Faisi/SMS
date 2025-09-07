@@ -90,6 +90,12 @@ class TeacherManagementServices
         return $this->teacherRepository->deleteTeacherData($teacherId);
     }
 
+    public function getTeachersBySubject($subject)
+    {
+        return $this->teacherRepository->getTeachersBySubjectData($subject);
+    }
+
+
     public function addToUsers($teacher): bool|string
     {
         $newUser = new User();

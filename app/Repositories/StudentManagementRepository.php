@@ -106,12 +106,30 @@ class StudentManagementRepository
         }
     }
 
-    public function getStudentsByClassData(string $id)
+    public function getStudentsByClassData(string $id, $search): \Illuminate\Database\Eloquent\Collection|string
     {
         try{
-            [$class, $section] = explode('-', $id);
 
-            return Student::where('class', $class)->where('section', $section)->get();
+            $parts = explode('-', $id);
+            $class = $parts[0] ?? null;
+            $section = $parts[1] ?? null;
+
+            $query = Student::query();
+
+            if ($class) {
+                $query->where('class', $class);
+            }
+
+            if ($section) {
+                $query->where('section', $section);
+            }
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%");
+                });
+            }
+
+            return $query->get();
         }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
         }

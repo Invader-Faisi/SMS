@@ -82,4 +82,22 @@ class TeacherManagementRepository
             return 'Error : '.$e->getMessage();
         }
     }
+
+    public function getTeacherListForTimeTable(): \Illuminate\Database\Eloquent\Collection|string
+    {
+        try {
+            return Teacher::all();
+        } catch (\Exception $e) {
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
+    public function getTeachersBySubjectData($subject)
+    {
+        try {
+            return Teacher::where('designation', 'Teacher-'.$subject)->get();
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
 }
