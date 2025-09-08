@@ -134,5 +134,15 @@ class StudentManagementServices
         return  $this->studentRepository->getStudentsByClassData($id, $search);
     }
 
+    public function addStudentsAttendance(array $attendance): bool|string
+    {
+        return $this->studentRepository->addStudentsAttendanceData($attendance);                
+    }
+
+    public function getStudentAttendance($studentId, $date)
+    {
+        return $this->studentRepository->getStudentAttendanceData($studentId, $date);
+    }
+
 
 }

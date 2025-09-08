@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use Log;
 use App\Models\Parents;
 use App\Models\Student;
+use App\Models\Attendance;
 
 class StudentManagementRepository
 {
@@ -132,6 +134,39 @@ class StudentManagementRepository
             return $query->get();
         }catch (\Exception $e){
             return 'Error : '.$e->getMessage();
+        }
+    }
+
+    public function addStudentsAttendanceData(array $attendance)
+{
+    try {
+        $now = now()->toDateTimeString();
+        foreach ($attendance as &$row) {
+            if (!isset($row['created_at'])) {
+                $row['created_at'] = $now;
+            }
+            $row['updated_at'] = $now;
+        }
+
+        Attendance::upsert(
+            $attendance,
+            ['student_id', 'date'], // Unique keys
+            ['class_id', 'status', 'remarks', 'updated_at'] // Columns to update
+        );
+
+        return true;
+    } catch (\Exception $e) {
+        return 'Error : ' . $e->getMessage();
+    }
+}
+
+
+    public function getStudentAttendanceData($studentId, $date)
+    {
+        try{
+            return Attendance::with('student')->where('student_id', $studentId)->where('date', $date)->first();    
+        }catch (\Exception $e){
+                return null; 
         }
     }
 
