@@ -109,19 +109,19 @@ class extends Component {
                 </div>
 
                 <!-- Body -->
-                <div class="flex flex-col gap-2 p-6 text-center mt-2">
+                <div class="flex flex-col gap-2 p-2 text-center mt-2">
                     <p class="h-14 text-balance text-md font-bold text-on-surface-strong lg:text-md dark:text-on-surface-dark-strong">
                         {{$class->teacher->name}}</p>
                     <span
                         class="mx-auto w-full bg-indigo-500 px-2 py-1 text-lg text-on-primary dark:bg-primary-dark dark:text-on-primary-dark rounded-radius">{{$class->class_id}}</span>
                     <p id="profileDescription" class="mt-4 text-pretty text-sm">{{$class->academic_year}}</p>
                     <!-- Links -->
-                    <div class="mt-4 flex items-center justify-center gap-6">
+                    <div class="mt-4 flex items-center justify-center gap-4">
 
                         <!-- Time Table -->
                         <flux:button tooltip="View Time Table" variant="primary" color="red" size="xs"
                                      class="cursor-pointer">
-                            <a href="{{ route('classes.timetable', $class->class_id) }}">
+                            <a href="{{ route('classes.class.timetable', $class->class_id) }}">
                                 <flux:icon.table-cells variant="solid" class="size-4"/>
                             </a>
                         </flux:button>
@@ -139,6 +139,9 @@ class extends Component {
                             </a>
                         </flux:button>
                     </div>
+                    <flux:button href="{{ route('classes.class.attendance', $class->class_id) }}" icon:trailing="arrow-up-right">
+                            Attendance
+                    </flux:button>
                 </div>
             </article>
         @endforeach

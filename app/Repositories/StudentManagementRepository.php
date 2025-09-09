@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use Log;
+use Carbon\Carbon;
 use App\Models\Parents;
 use App\Models\Student;
 use App\Models\Attendance;
@@ -167,6 +168,43 @@ class StudentManagementRepository
             return Attendance::with('student')->where('student_id', $studentId)->where('date', $date)->first();    
         }catch (\Exception $e){
                 return null; 
+        }
+    }
+
+    public function getClassAttendanceData($date)
+    {
+        try{
+            $students = Student::with(['attendances' => function($query) use ($date) {
+                $query->where('date', $date);
+            }])->get()->groupBy(function ($student) {
+                return $student->class . '-' . $student->section;
+            }); 
+            return $students;  
+        }catch (\Exception $e){
+                return 'Error : '.$e->getMessage();
+        }
+    }
+
+    public function getAttendanceForClassByMonthData($classId, $month)
+    {
+        try {
+            [$className, $section] = explode('-', $classId);
+
+            // Get first and last date of the month
+            $start = Carbon::parse($month . '-01')->startOfMonth()->toDateString();
+            $end = Carbon::parse($month . '-01')->endOfMonth()->toDateString();
+
+            $students = Student::with(['attendances' => function($query) use ($start, $end) {
+                $query->whereBetween('date', [$start, $end]);
+            }])
+            ->where('class', $className)
+            ->where('section', $section)
+            ->get();
+
+            return $students;
+
+        } catch (\Exception $e) {
+            return collect(); // return empty collection if error
         }
     }
 

@@ -25,8 +25,9 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('classes', 'classes.classes')->name('classes');
     Volt::route('classes/class/{id}', 'classes.partials.class')->name('classes.class');
     Volt::route('classes/timetables', 'classes.timetables')->name('classes.timetables');
-    Volt::route('classes/timetable/{id}', 'classes.partials.timetable')->name('classes.timetable');
+    Volt::route('classes/timetable/{id}', 'classes.partials.timetable')->name('classes.class.timetable'); 
     Volt::route('classes/attendance', 'classes.attendance')->name('classes.attendance');
+    Volt::route('classes/attendance/{id}', 'classes.partials.attendance')->name('classes.class.attendance');
 
     // Settings
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');

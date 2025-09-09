@@ -144,5 +144,14 @@ class StudentManagementServices
         return $this->studentRepository->getStudentAttendanceData($studentId, $date);
     }
 
+    public function getClassAttendance($date)
+    {
+        return $this->studentRepository->getClassAttendanceData($date);
+    }
+
+    public function getAttendanceForClassByMonth($classId,$month)
+    {
+        return $this->studentRepository->getAttendanceForClassByMonthData($classId,$month);
+    }
 
 }

@@ -13,6 +13,7 @@ class extends Component {
 
     public ?Collection $students = null;
     public array $attendanceData = [];
+    public $studentAttendance = null;
 
     #[Url(history: true)]
     public $search;
@@ -20,9 +21,15 @@ class extends Component {
     // Helping variables
     public $searchStudents = '';
     public string $class_id = '';
+    public string $searchDate;
     
     public string $navbarHeading = "Attendance Management";
 
+    public function mount()
+    {
+        $this->searchDate = now()->toDateString();
+        $this->loadAttendance();
+    }
     public function rendering(View $view): void
     {
         $view->layoutData([
@@ -35,6 +42,12 @@ class extends Component {
         return [
             'classes' => $classServices->getClassesList($this->search),
         ];
+    }
+
+    public function loadAttendance()
+    {
+        $studentServices = app(\App\Services\StudentManagementServices::class);
+        $this->studentAttendance = $studentServices->getClassAttendance($this->searchDate)->flatten();
     }
 
     public function getStudentsOfClass(\App\Services\StudentManagementServices $studentServices)
@@ -111,13 +124,14 @@ class extends Component {
 
         if ($response === true) {
             $this->dispatch('notify', type: 'success', message: 'Attendance added successfully.');
-            $this->reset();        
+            $this->attendanceData = [];
+            $this->students = null;
+            $this->class_id = '';
             $this->resetValidation();
         } else {
             $this->dispatch('notify', type: 'error', message: $response);
         }
     }
-
 
 }; ?>
 
@@ -125,6 +139,7 @@ class extends Component {
     <div class="space-y-2">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-3">    
             <div class="flex justify-between w-full gap-2">
+                <div class="flex items-center gap-2">
                 <flux:select wire:model="searchStudents" class="w-1/2">
                     <flux:select.option value="null">Choose Class for Attendance...</flux:select.option>
                     @forelse ($classes as $class)
@@ -133,14 +148,21 @@ class extends Component {
                         <flux:select.option disabled>No Class Found</flux:select.option>
                     @endforelse                
                 </flux:select>
-                <flux:button variant="primary" color="indigo" icon="plus-circle" wire:click="getStudentsOfClass" class="cursor-pointer">
+                <flux:button variant="primary" color="indigo" icon="check" wire:click="getStudentsOfClass" class="cursor-pointer">
                     Select
                 </flux:button>
-            </div>
+                </div>
+                <div class="flex items-center gap-2">
+                <flux:input type="date" wire:model='searchDate' wire:change="loadAttendance"/>
+                <span wire:loading>
+                    <flux:icon.loading />
+                </span>
+                </div>
+            </div>            
         </div>
 
         @if($students && $students->isNotEmpty())
-        <div class="w-full max-w-4xl md:max-w-3xl lg:max-w-5xl space-y-2">
+        <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
             <div class="space-y-2 p-2 border rounded">
                 <div>
                     Add Attendance for Class: <strong>{{ $class_id }}</strong>
@@ -230,5 +252,60 @@ class extends Component {
         @endif
 
     </div>
+
+    
+
+    <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline dark:border-outline-dark mt-4">
+    <table class="w-full text-left text-sm text-on-surface dark:text-on-surface-dark">
+        <thead
+            class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
+            <tr>
+                <th scope="col" class="p-4">ID</th>
+                <th scope="col" class="p-4">Student</th>
+                <th scope="col" class="p-4">Attendance</th>
+                <th scope="col" class="p-4">Date</th>
+                <th scope="col" class="p-4">Marked</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-outline dark:divide-outline-dark">
+
+            @forelse(($studentAttendance ?? collect())->groupBy(fn($student) => $student->class . '-' . $student->section) as $classKey => $classStudents)
+                
+                {{-- Class Header Row --}}
+                <tr>
+                    <td colspan="8" class="bg-gray-200 p-2 font-bold text-center text-black">
+                        <span class="pl-5">{{ $classKey }}</span>
+                    </td>
+                </tr>
+
+                {{-- Students Rows --}}
+                @foreach($classStudents as $student)
+                    <tr key="{{ $student->id }}">
+                        <td class="p-4">{{ $student->student_id }}</td>
+                        <td class="p-4">
+                            <div class="flex w-max items-center gap-2">
+                                <img src="{{ asset('storage/' . $student->image) }}"
+                                     class="size-8 rounded-full object-cover" alt="Student Image">
+                                <div class="flex flex-col">
+                                    <span class="text-neutral-900 dark:text-white">{{ $student->student_id }}</span>
+                                    <span class="text-neutral-500 dark:text-white">{{ $student->name }}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4">{{ optional($student->attendances->first())->status ?? '-' }}</td>
+                        <td class="p-4">{{ optional($student->attendances->first())->date ?? '-' }}</td>                        
+                        <td class="p-4">{{ $student->attendances->isNotEmpty() ? 'Marked' : 'Not Marked' }}</td>
+                    </tr>
+                @endforeach
+
+            @empty
+                <tr>
+                    <td colspan="6" class="p-4 text-center">No data found!!!</td>
+                </tr>
+            @endforelse
+
+        </tbody>
+    </table>
+</div>
 </section>
 

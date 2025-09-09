@@ -22,9 +22,19 @@ class Student extends Model
         'section',
     ];
 
+    public function getClass()
+    {
+        return $this->class . '-' . $this->section;
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Parents::class, 'parent_id', 'parent_id');
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class, 'student_id', 'student_id');
     }
 
     #[Scope]
