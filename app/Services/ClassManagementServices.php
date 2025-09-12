@@ -7,7 +7,7 @@ use App\Repositories\ClassManagementRepository;
 
 class ClassManagementServices
 {
-    protected $classRepository;
+    protected ClassManagementRepository $classRepository;
     public function __construct(ClassManagementRepository $classRepository)
     {
         $this->classRepository = $classRepository;

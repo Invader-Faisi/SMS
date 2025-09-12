@@ -24,6 +24,15 @@ class StudentManagementRepository
         }
     }
 
+    public function getAllStudentData(): \Illuminate\Database\Eloquent\Collection|string
+    {
+        try{
+            return Student::all();
+        }catch (\Exception $e){
+            return 'Error : '.$e->getMessage();
+        }
+    }
+
     public function getStudentByIdData($id)
     {
         try{
@@ -138,8 +147,8 @@ class StudentManagementRepository
         }
     }
 
-    public function addStudentsAttendanceData(array $attendance)
-{
+    public function addStudentsAttendanceData(array $attendance): true|string
+    {
     try {
         $now = now()->toDateTimeString();
         foreach ($attendance as &$row) {
@@ -165,27 +174,27 @@ class StudentManagementRepository
     public function getStudentAttendanceData($studentId, $date)
     {
         try{
-            return Attendance::with('student')->where('student_id', $studentId)->where('date', $date)->first();    
+            return Attendance::with('student')->where('student_id', $studentId)->where('date', $date)->first();
         }catch (\Exception $e){
-                return null; 
+                return null;
         }
     }
 
-    public function getClassAttendanceData($date)
+    public function getClassAttendanceData($date): \Illuminate\Database\Eloquent\Collection|string
     {
         try{
             $students = Student::with(['attendances' => function($query) use ($date) {
                 $query->where('date', $date);
             }])->get()->groupBy(function ($student) {
                 return $student->class . '-' . $student->section;
-            }); 
-            return $students;  
+            });
+            return $students;
         }catch (\Exception $e){
                 return 'Error : '.$e->getMessage();
         }
     }
 
-    public function getAttendanceForClassByMonthData($classId, $month)
+    public function getAttendanceForClassByMonthData($classId, $month): \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
     {
         try {
             [$className, $section] = explode('-', $classId);

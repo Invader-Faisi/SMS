@@ -10,7 +10,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 class StudentManagementServices
 {
-    protected $studentRepository;
+    protected StudentManagementRepository $studentRepository;
 
     public function __construct(StudentManagementRepository $studentRepository)
     {
@@ -136,7 +136,7 @@ class StudentManagementServices
 
     public function addStudentsAttendance(array $attendance): bool|string
     {
-        return $this->studentRepository->addStudentsAttendanceData($attendance);                
+        return $this->studentRepository->addStudentsAttendanceData($attendance);
     }
 
     public function getStudentAttendance($studentId, $date)

@@ -9,9 +9,9 @@ use Carbon\Carbon;
 
 class TimeTableManagementServices
 {
-    protected $timeTableRepository;
-    protected $teacherRepository;
-    protected $classRepository;
+    protected TimeTableManagementRepository $timeTableRepository;
+    protected TeacherManagementRepository $teacherRepository;
+    protected ClassManagementRepository $classRepository;
 
     public function __construct(TimeTableManagementRepository $timeTableRepository, TeacherManagementRepository $teacherRepository, ClassManagementRepository $classRepository)
     {

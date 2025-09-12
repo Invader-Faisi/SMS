@@ -29,7 +29,11 @@
                 <flux:navlist.item icon="building-library" :href="route('classes')" :current="request()->routeIs('classes')" wire:navigate>{{ __('Classes') }}</flux:navlist.item>
                 <flux:navlist.item icon="table-cells" :href="route('classes.timetables')" :current="request()->routeIs('classes.timetables')" wire:navigate>{{ __('Time Tables') }}</flux:navlist.item>
                 <flux:navlist.item icon="users" :href="route('classes.attendance')" :current="request()->routeIs('classes.attendance')" wire:navigate>{{ __('Attendance') }}</flux:navlist.item>
-                <flux:navlist.item icon="academic-cap" :href="route('admin.student')" :current="request()->routeIs('admin.student')" wire:navigate>{{ __('New Admission') }}</flux:navlist.item>
+            </flux:navlist.group>
+            <flux:navlist.group heading="Account Management" expandable>
+                <flux:navlist.item icon="banknotes" :href="route('fee-structure')" :current="request()->routeIs('fee-structure')" wire:navigate>{{ __('Fee Structure') }}</flux:navlist.item>
+                <flux:navlist.item icon="currency-dollar" :href="route('fees')" :current="request()->routeIs('fees')" wire:navigate>{{ __('Fees') }}</flux:navlist.item>
+                <flux:navlist.item icon="users" :href="route('classes.attendance')" :current="request()->routeIs('classes.attendance')" wire:navigate>{{ __('Attendance') }}</flux:navlist.item>
             </flux:navlist.group>
             <flux:navlist.item href="#" icon="list-bullet">Transactions</flux:navlist.item>
         </flux:navlist>

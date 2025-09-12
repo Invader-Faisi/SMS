@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 
 class ParentManagementServices
 {
-    protected $parentRepository;
+    protected ParentManagementRepository $parentRepository;
 
     public function __construct(ParentManagementRepository $parentRepository)
     {

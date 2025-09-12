@@ -5,7 +5,7 @@ use Livewire\Attributes\Title;
 use Livewire\Volt\Component;
 use Carbon\Carbon;
 
-new 
+new
 #[Title('Class Attendance')]
 class extends Component {
 
@@ -13,7 +13,7 @@ class extends Component {
     public $students; // all students of the class
     public $attendance; // attendance collection
 
-    public string $selectedDate; 
+    public string $selectedDate;
     public string $selectedMonth; // format: Y-m
     public array $monthDates = []; // all dates of selected month
 
@@ -88,7 +88,7 @@ class extends Component {
             <table class="w-full text-left text-sm text-on-surface dark:text-on-surface-dark border-collapse">
                 <thead class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
                     <tr>
-                        <th class="p-2 sticky left-0 bg-surface-alt z-10">Student</th>
+                        <th class="p-2 sticky left-0 bg-surface-alt z-10 text-center">Student</th>
                         @foreach($monthDates as $date)
                             <th class="p-2 text-center">{{ \Carbon\Carbon::parse($date)->format('d') }}</th>
                         @endforeach
@@ -98,7 +98,7 @@ class extends Component {
                     @forelse($students ?? collect() as $student)
                         <tr>
                             {{-- Student Column --}}
-                            <td class="p-2 sticky left-0 bg-white dark:bg-gray-800 flex items-center gap-2 z-10">
+                            <td class="p-2 sticky left-0 bg-white dark:bg-gray-800 flex items-center gap-2 z-10 w-32">
                                 <img src="{{ asset('storage/' . $student->image) }}" class="w-8 h-8 rounded-full object-cover" alt="Student Image">
                                 <span>{{ $student->name }}</span>
                             </td>

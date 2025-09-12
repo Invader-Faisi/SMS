@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 
 class StaffManagementServices
 {
-    protected $staffRepository;
+    protected StaffManagementRepository $staffRepository;
 
     public function __construct(StaffManagementRepository $staffRepository)
     {
