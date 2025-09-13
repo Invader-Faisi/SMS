@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use Carbon\Carbon;
 use App\Models\Fee;
 use App\Models\FeeStructure;
 
@@ -114,14 +115,21 @@ class AccountManagementRepository
         }
     }
 
-    public function getMonthlyFeeListData(mixed $search, mixed $perPage, mixed $sortedBy, mixed $sortDirection,$month)
+    public function getMonthlyFeeListData(mixed $search, mixed $perPage, mixed $sortedBy, mixed $sortDirection,$month, $year)
     {
         try{
-            $query = Fee::search($search)->with('student');
-            if($month){
-                $query->whereMonth('due_date', $month);
-            }
-            return $query->orderBy($sortedBy, $sortDirection)->paginate($perPage);
+             $query = Fee::search($search)->with('student');
+
+                if (!empty($month) && !empty($year)) {
+                    $query->whereMonth('due_date', $month)
+                        ->whereYear('due_date', $year);
+                } elseif (!empty($month)) {
+                    $query->whereMonth('due_date', $month);
+                } elseif (!empty($year)) {
+                    $query->whereYear('due_date', $year);
+                }
+
+                return $query->orderBy($sortedBy, $sortDirection)->paginate($perPage);
         }catch (\Exception $e){
             return 'Error: ' . $e->getMessage();
         }
@@ -140,6 +148,23 @@ class AccountManagementRepository
     {
         try{
             return $oneTimeFee->save();
+        }catch (\Exception $e){
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
+    public function getMonthlyFeesByStudentAndMonthData($studentId, $month)
+    {
+         $carbonDate = Carbon::parse($month);
+        try{
+            return Fee::where('student_id', $studentId)
+                ->where(function ($q) {
+                    $q->where('status', 'pending')
+                    ->orWhere('status', 'partial');
+                })
+                ->whereMonth('due_date', $carbonDate->month)
+                ->whereYear('due_date', $carbonDate->year)
+                ->get();
         }catch (\Exception $e){
             return 'Error: ' . $e->getMessage();
         }

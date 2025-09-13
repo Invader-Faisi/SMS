@@ -33,7 +33,7 @@
             <flux:navlist.group heading="Account Management" expandable>
                 <flux:navlist.item icon="banknotes" :href="route('fee-structure')" :current="request()->routeIs('fee-structure')" wire:navigate>{{ __('Fee Structure') }}</flux:navlist.item>
                 <flux:navlist.item icon="currency-dollar" :href="route('fees')" :current="request()->routeIs('fees')" wire:navigate>{{ __('Fees') }}</flux:navlist.item>
-                <flux:navlist.item icon="users" :href="route('classes.attendance')" :current="request()->routeIs('classes.attendance')" wire:navigate>{{ __('Attendance') }}</flux:navlist.item>
+                <flux:navlist.item icon="folder-arrow-down" :href="route('fee-slips')" :current="request()->routeIs('fee-slips')" wire:navigate>{{ __('Fee Slips') }}</flux:navlist.item>
             </flux:navlist.group>
             <flux:navlist.item href="#" icon="list-bullet">Transactions</flux:navlist.item>
         </flux:navlist>

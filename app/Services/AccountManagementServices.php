@@ -112,9 +112,9 @@ class AccountManagementServices
         return $response ? true : 'No new fees were generated';
     }
 
-    public function getMonthlyFeeList(mixed $search, mixed $perPage, mixed $sortedBy, mixed $sortDirection, int $month = null)
+    public function getMonthlyFeeList(mixed $search, mixed $perPage, mixed $sortedBy, mixed $sortDirection, $month, $year)
     {
-        return $this->accountManagementRepository->getMonthlyFeeListData($search, $perPage, $sortedBy, $sortDirection, $month);
+        return $this->accountManagementRepository->getMonthlyFeeListData($search, $perPage, $sortedBy, $sortDirection, $month, $year);
     }
 
     public function getMonthlyFeeById($feeId)
@@ -127,6 +127,11 @@ class AccountManagementServices
         $oneTimeFee = new Fee();
         $oneTimeFee->fill($fee);
         return $this->accountManagementRepository->addOneTimeFeeData($oneTimeFee);
+    }
+
+    public function getMonthlyFeesByStudentAndMonth($studentId, $month)
+    {
+        return $this->accountManagementRepository->getMonthlyFeesByStudentAndMonthData($studentId, $month);
     }
 
 

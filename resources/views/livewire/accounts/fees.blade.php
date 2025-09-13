@@ -31,7 +31,7 @@ class extends Component {
     public $structure = [];
     public array $oneTimeFees = [];
     public array $oneTimeCounts = [];
-    public $annaulCharges;
+    public array $oneTimeMonth = [];
 
 
     //    Table variables
@@ -83,6 +83,7 @@ class extends Component {
         $this->studentId = $fee->student_id;
         $this->oneTimeFees = [];
         $this->oneTimeCounts = [];
+        $this->oneTimeMonth = [];
         $this->structure = $feeServices->getOneTimeFeeStructure($class);
         Flux::modal('one-time-fee-modal')->show();
     }
@@ -93,6 +94,7 @@ class extends Component {
         $this->studentId = $fee->student_id;
         $this->oneTimeFees = [];
         $this->oneTimeCounts = [];
+        $this->oneTimeMonth = [];
         $this->structure = $feeServices->getAnnualStructure($class);
         Flux::modal('one-time-fee-modal')->show();
     }
@@ -101,7 +103,7 @@ class extends Component {
     {
         $studentId = $this->studentId;
         $year = now()->year;
-        $month = now()->month;
+        $month = $this->oneTimeMonth[array_key_first($this->oneTimeMonth)] ?? now()->month;
 
         foreach ($this->oneTimeFees as $id => $checked) {
             if ($checked) {
@@ -148,10 +150,10 @@ class extends Component {
             <div class="flex flex-col lg:flex-row gap-2 w-full lg:w-auto">
                 <flux:select wire:model.live.debounce.200ms="perPage">
                     <flux:select.option value="null">Choose Per Page Record...</flux:select.option>
-                    <flux:select.option>5</flux:select.option>
-                    <flux:select.option>10</flux:select.option>
-                    <flux:select.option>15</flux:select.option>
-                    <flux:select.option>20</flux:select.option>
+                    <flux:select.option>50</flux:select.option>
+                    <flux:select.option>100</flux:select.option>
+                    <flux:select.option>200</flux:select.option>
+                    <flux:select.option>500</flux:select.option>
                 </flux:select>
                 <flux:select wire:model="month" class="w-40">
                     <flux:select.option value="null">Select Month...</flux:select.option>
@@ -267,16 +269,24 @@ class extends Component {
             <livewire:common.delete/>
         </div>
     </div>
-    <flux:modal name="one-time-fee-modal" class="w-full max-w-lg">
+    <flux:modal name="one-time-fee-modal" class="w-full max-w-2xl">
         <div class="space-y-6">
             <h2 class="text-lg font-bold">Assign One-Time Fees</h2>
             <div class="space-y-3">
                 @foreach($structure as $struct)
-                    <div class="flex items-center justify-between gap-4">
+                    <div class="flex flex-col space-y-4">
                         <flux:field variant="inline" class="flex items-center gap-2">
                             <flux:checkbox wire:model="oneTimeFees.{{ $struct->id }}" class="cursor-pointer"/>
                             <flux:label>{{ $struct->name }} ({{ $struct->amount }})</flux:label>
                         </flux:field>
+                        <flux:select wire:model="oneTimeMonth.{{ $struct->id }}" class="w-40">
+                            <flux:select.option value="null">Select Month...</flux:select.option>
+                            @foreach(range(1,12) as $m)
+                                <flux:select.option value="{{ $m }}">
+                                    {{ date("F", mktime(0,0,0,$m,1)) }}
+                                </flux:select.option>
+                            @endforeach
+                        </flux:select>
                         <flux:input type="number" min="1" wire:model="oneTimeCounts.{{ $struct->id }}" :label="__('Multiple')"
                                     class="w-28"/>
                     </div>

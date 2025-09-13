@@ -29,9 +29,10 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('classes/attendance', 'classes.attendance')->name('classes.attendance');
     Volt::route('classes/attendance/{id}', 'classes.partials.attendance')->name('classes.class.attendance');
 
-    // Class Management
+    // Account Management
     Volt::route('accounts', 'accounts.fee-structure')->name('fee-structure');
     Volt::route('accounts/fee', 'accounts.fees')->name('fees');
+    Volt::route('accounts/fee-slips', 'accounts.fee-slips')->name('fee-slips');
 
 
     // Settings
