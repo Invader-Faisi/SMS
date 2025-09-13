@@ -1,5 +1,7 @@
 <?php
 
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -7,7 +9,6 @@ use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
 use Livewire\Attributes\Title;
-use Livewire\Attributes\Reactive;
 
 
 new
@@ -160,6 +161,26 @@ class extends Component {
                 $fee->save();
             }
 
+                $student = $fees->first()->student;
+                $pdf = Pdf::loadView('livewire.accounts.partials.fee-slip', [
+                    'student' => $student,
+                    'fees' => $fees,
+                    'paidFee' => $this->paidFee,
+                    'date' => now()->format('d-m-Y'),
+                    'totalAmount' => $fees->sum('amount'),
+                    'totalPending' => $fees->sum('pending_amount'),
+                ]);
+
+                $fileName = 'fee-slip-' . $student->student_id . '-' . $month . '-'.now()->timestamp. '.pdf';
+                $home = getenv('USERPROFILE') ?: getenv('HOME'); 
+                $desktop = $home . DIRECTORY_SEPARATOR . 'Desktop' . DIRECTORY_SEPARATOR . 'pay slips' . DIRECTORY_SEPARATOR;
+
+                if (!file_exists($desktop)) {
+                    mkdir($desktop, 0777, true);
+                }
+
+                $pdf->save($desktop . $fileName);
+                
             $this->dispatch('notify', type: 'success', message: 'Fee Payment processed successfully.');
             Flux::modal('pay-fee-modal')->close();
         }else{
