@@ -65,6 +65,20 @@ class SalaryManagementRepository
         }
     }
 
+    public function getSalaryDeductionByEmployeeIdData(string $id, mixed $month)
+    {
+        try{
+            return SalaryDeduction::where(function ($query) use ($id) {
+                $query->where('teacher_id', $id)
+                    ->orWhere('staff_id', $id);
+            })
+                ->whereMonth('updated_at', $month)
+                ->get();
+        }catch (\Exception $e){
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
     public function getMonthlySalaryListData(mixed $search, mixed $perPage, mixed $sortedBy, mixed $sortDirection, mixed $month, mixed $year)
     {
         try{
@@ -124,7 +138,10 @@ class SalaryManagementRepository
     {
         try{
             return $salary->save();
-        }catch (\Exception $e){
+        }catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == 23000) {
+                return "Salary entry already exists for this month!";
+            }
             return 'Error: ' . $e->getMessage();
         }
     }

@@ -22,15 +22,22 @@ class extends Component {
     }
 
     //    Form fields
+    public $teacher_id = null;
+    public $staff_id = null;
     public string $type = '';
     public string $category = '';
     public string $name = '';
     public string $amount = '0.00';
+    public string $multiples = '1';
 
     //    helper variables
     public $id;
     public bool $isEditMode = false;
     public string $page = 'SalaryDeduction';
+    public string $selectedName = '';
+    public string $selectedDesignation = '';
+
+
 
     //    Table variables
     #[Url(history: true)]
@@ -44,7 +51,7 @@ class extends Component {
 
     public $sortDirection = 'ASC';
 
-    public function with(\App\Services\SalaryManagementServices $salaryServices)
+    public function with(\App\Services\SalaryManagementServices $salaryServices): array
     {
         return [
             'deductions' => $salaryServices->getSalaryDeductionList(
@@ -53,6 +60,8 @@ class extends Component {
                 $this->sortedBy,
                 $this->sortDirection
             ),
+            'teachers' => $salaryServices->getTeachersList(),
+            'staffs' => $salaryServices->getStaffList(),
         ];
     }
 
@@ -68,9 +77,30 @@ class extends Component {
 
     public function saveSalaryDeduction(\App\Services\SalaryManagementServices $salaryServices): void
     {
+        if ($this->teacher_id !== null && $this->staff_id !== null) {
+            $this->dispatch('notify', type: 'error', message: 'Please select Teacher or Staff not both !!!');
+            $this->reset(['teacher_id', 'staff_id', 'selectedName', 'selectedDesignation']);
+            return;
+        }
+        if ($this->teacher_id === null && $this->staff_id === null) {
+            $this->dispatch('notify', type: 'info', message: 'Please select Teacher or Staff First !!!');
+            $this->reset(['teacher_id', 'staff_id', 'selectedName', 'selectedDesignation']);
+            return;
+        }
+
         $deduction = $this->validateFields();
 
+        if($this->teacher_id === null && $this->staff_id !== null){
+            $this->type = 'staff';
+        }
+
+        if($this->teacher_id !== null && $this->staff_id === null){
+            $this->type = 'teacher';
+        }
+        $deduction['type'] = $this->type;
+
         $salary = $salaryServices->saveSalaryDeduction($deduction);
+
         if ($salary === true) {
             $this->dispatch('notify', type: 'success', message: 'Salary Deduction added successfully.');
         } else {
@@ -133,10 +163,12 @@ class extends Component {
     public function validateFields()
     {
         return $this->validate([
-            'type' => ['required', 'string'],
+            'teacher_id' => ['nullable', 'string'],
+            'staff_id' => ['nullable', 'string'],
             'category' => ['required', 'string'],
             'name' => ['required', 'string'],
             'amount' => ['required', 'numeric', 'min:0'],
+            'multiples' => ['required', 'numeric', 'min:1'],
         ]);
     }
 
@@ -180,16 +212,39 @@ class extends Component {
                 <thead
                     class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
                 <tr>
-                    <th scope="col" class="p-4">Entity</th>
+                    <th scope="col" class="p-4">Teacher / Staff</th>
+                    <th scope="col" class="p-4">Type</th>
                     <th scope="col" class="p-4">Cat</th>
                     <th scope="col" class="p-4">Name</th>
                     <th scope="col" class="p-4">Amount</th>
+                    <th scope="col" class="p-4">Multiples</th>
                     <th scope="col" class="p-4">Action</th>
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-outline dark:divide-outline-dark">
                 @forelse($deductions as $deduction)
                     <tr key="{{$deduction->id}}">
+                        @if($deduction->teacher)
+                            <td class="p-4">
+                                <div class="flex w-max items-center gap-2">
+                                    <img src="{{ asset('storage/' . $deduction->teacher->image) }}"
+                                         class="size-8 rounded-full object-cover" alt="Teacher Image">
+                                    <div class="flex flex-col">
+                                        <span class="text-neutral-900 dark:text-white">{{ $deduction->teacher->name }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                        @elseif($deduction->staff)
+                            <td class="p-4">
+                                <div class="flex w-max items-center gap-2">
+                                    <img src="{{ asset('storage/' . $deduction->staff->image) }}"
+                                         class="size-8 rounded-full object-cover" alt="Staff Image">
+                                    <div class="flex flex-col">
+                                        <span class="text-neutral-900 dark:text-white">{{ $deduction->staff->name }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                        @endif
                         <td class="p-4">{{ucfirst($deduction->type)}}</td>
                         @php
                             $cat = strtolower($deduction->category);
@@ -206,6 +261,7 @@ class extends Component {
                         <td class="p-4"><span
                                 class="inline-flex overflow-hidden rounded-radius border-success px-1 py-0.5 text-xs font-medium text-success bg-success/10">{{$deduction->amount}}</span>
                         </td>
+                        <td class="p-4">{{$deduction->multiples}}</td>
                         <td class="p-4">
                             <div class="flex items-center justify-between w-full">
                                 <div class="flex gap-2">
@@ -257,10 +313,22 @@ class extends Component {
                 <div class="space-y-4">
                     <!-- Row 1: Two Selects -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <flux:select wire:model="type" :label="__('Type')" class="w-full">
-                            <flux:select.option value="null">Select Class...</flux:select.option>
-                            <flux:select.option value="teacher">Teacher</flux:select.option>
-                            <flux:select.option value="staff">Staff</flux:select.option>
+                        <flux:select wire:model="staff_id" class="w-40">
+                            <flux:select.option value="null">Select Staff...</flux:select.option>
+                            @foreach($staffs as $staff)
+                                <flux:select.option value="{{ $staff->staff_id }}">
+                                    {{ $staff->name }} - {{ $staff->designation }}
+                                </flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        <flux:select wire:model="teacher_id" class="w-40">
+                            <flux:select.option value="null">Select Teacher...</flux:select.option>
+                            @foreach($teachers as $teacher)
+                                <flux:select.option value="{{ $teacher->teacher_id }}">
+                                    {{ $teacher->name }} - {{ $teacher->designation }}
+                                </flux:select.option>
+                            @endforeach
                         </flux:select>
 
                         <flux:select wire:model="category" :label="__('Category')" class="w-full">
@@ -270,6 +338,7 @@ class extends Component {
                             <flux:select.option value="third">Cat - III</flux:select.option>
                             <flux:select.option value="lower">Cat - IV</flux:select.option>
                         </flux:select>
+                        <flux:input type="numeric" min="1" wire:model="multiples" :label="__('No of Times')" class="w-full"/>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">

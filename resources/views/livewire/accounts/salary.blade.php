@@ -22,9 +22,9 @@ class extends Component {
     }
 
     //    form variables
+    public $teacher_id = null;
+    public $staff_id = null;
     public $salary_structure_id;
-    public $salary_deduction_id;
-    public $multiple = 0;
     public $account;
     public $payment_method;
 
@@ -32,8 +32,6 @@ class extends Component {
     public $id;
     public string $page = 'Salary';
     public bool $isEditMode = false;
-    public $teacher_id = null;
-    public $staff_id = null;
     public $name = null;
     public $designation = null;
 
@@ -102,8 +100,7 @@ class extends Component {
     {
         $this->validateFields();
         if($this->teacher_id !== null && $this->staff_id === null){
-            $salary = $salaryServices->saveTeacherSalary($this->teacher_id,$this->salary_structure_id,
-                $this->salary_deduction_id,$this->account,$this->payment_method,$this->multiple);
+            $salary = $salaryServices->saveTeacherSalary($this->teacher_id,$this->salary_structure_id,$this->account,$this->payment_method);
             if ($salary === true) {
                 $this->dispatch('notify', type: 'success', message: 'Salary of teacher ('.$this->name.') added successfully.');
             } else {
@@ -111,8 +108,7 @@ class extends Component {
             }
         }
         if($this->teacher_id === null && $this->staff_id !== null){
-            $salary = $salaryServices->saveStaffSalary($this->staff_id,$this->salary_structure_id,
-                $this->salary_deduction_id,$this->account,$this->payment_method,$this->multiple);
+            $salary = $salaryServices->saveStaffSalary($this->staff_id,$this->salary_structure_id,$this->account,$this->payment_method);
             if ($salary === true) {
                 $this->dispatch('notify', type: 'success', message: 'Salary of staff ('.$this->name.') added successfully.');
             } else {
@@ -127,9 +123,9 @@ class extends Component {
     public function validateFields()
     {
         return $this->validate([
+            'teacher_id' => ['nullable', 'string'],
+            'staff_id' => ['nullable', 'string'],
             'salary_structure_id' => ['required', 'numeric'],
-            'salary_deduction_id' => ['required', 'numeric'],
-            'multiple' => ['nullable', 'numeric','min:0'],
             'account' => ['nullable', 'string'],
             'payment_method' => ['required', 'string'],
         ]);
@@ -228,7 +224,6 @@ class extends Component {
                     <th scope="col" class="p-4">Gross</th>
                     <th scope="col" class="p-4">Deductions</th>
                     <th scope="col" class="p-4">Net</th>
-                    <th scope="col" class="p-4">Details</th>
                     <th scope="col" class="p-4">Month</th>
                     <th scope="col" class="p-4">Method</th>
                     <th scope="col" class="p-4">Account</th>
@@ -249,8 +244,6 @@ class extends Component {
                                     <div class="flex flex-col">
                                         <span class="text-neutral-900 dark:text-white">{{ $salary->teacher->name }}</span>
                                         <span class="text-neutral-500 dark:text-white">{{ $salary->teacher->mobile }}</span>
-                                        <span class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{ $salary->teacher->cnic }}</span>
-                                        <span class="text-neutral-900 dark:text-white">{{ $salary->teacher->address }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -263,8 +256,6 @@ class extends Component {
                                     <div class="flex flex-col">
                                         <span class="text-neutral-900 dark:text-white">{{ $salary->staff->name }}</span>
                                         <span class="text-neutral-500 dark:text-white">{{ $salary->staff->mobile }}</span>
-                                        <span class="text-sm text-neutral-600 opacity-85 dark:text-neutral-300">{{ $salary->staff->cnic }}</span>
-                                        <span class="text-neutral-900 dark:text-white">{{ $salary->staff->address }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -276,7 +267,6 @@ class extends Component {
                         <td class="p-4"><span
                                 class="inline-flex overflow-hidden rounded-radius border-success px-1 py-0.5 text-xs font-medium text-success bg-success/10">{{$salary->net_salary}}</span>
                         </td>
-                        <td class="p-4">{{$salary->deduction->name}}-{{$salary->deduction->amount}}</td>
                         <td class="p-4">{{\Carbon\Carbon::parse($salary->payment_date)->format('F Y')}}</td>
                         <td class="p-4">{{$salary->payment_method}}</td>
                         <td class="p-4">{{$salary->account ?? '-'}}</td>
@@ -341,20 +331,6 @@ class extends Component {
                             @endif
                         @endforeach
                     </flux:select>
-                    <flux:select wire:model="salary_deduction_id" :label="__('Deduction')" class="w-40">
-                        <flux:select.option value="null">Select Deduction...</flux:select.option>
-                        @foreach($deductions as $deduction)
-                            @if(($staff_id !== null && $deduction->type === 'staff') ||
-                                ($teacher_id !== null && $deduction->type === 'teacher'))
-                                <flux:select.option value="{{ $deduction->id }}">
-                                    {{ ucfirst($deduction->type) }}-{{ ucfirst($deduction->category)}}-{{ ucfirst($deduction->name) }}-{{ ucfirst($deduction->amount) }}
-                                </flux:select.option>
-                            @endif
-                        @endforeach
-                    </flux:select>
-                    <flux:input type="number" min="1" wire:model="multiple"
-                                :label="__('Multiple in case of Leaves or Late')"
-                                class="w-28"/>
                     <flux:input wire:model="account" :label="__('Account Number')" class="w-28"/>
                     <flux:select wire:model="payment_method" :label="__('Method')" class="w-40">
                         <flux:select.option value="null">Select Method...</flux:select.option>

@@ -12,15 +12,23 @@ class SalaryDeduction extends Model
     use HasFactory;
 
     protected $fillable = [
+        'teacher_id',
+        'staff_id',
         'type',
         'category',
         'name',
         'amount',
+        'multiples'
     ];
 
-    public function salaries(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function teacher(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
-        return $this->hasMany(Salary::class, 'salary_deduction_id');
+        return $this->belongsTo(Teacher::class, 'teacher_id', 'teacher_id');
+    }
+
+    public function staff(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Staff::class, 'staff_id', 'staff_id');
     }
 
     #[Scope]

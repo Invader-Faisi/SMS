@@ -15,7 +15,6 @@ class Salary extends Model
         'teacher_id',
         'staff_id',
         'salary_structure_id',
-        'salary_deduction_id',
         'gross_salary',
         'total_deduction',
         'net_salary',
@@ -40,10 +39,6 @@ class Salary extends Model
         return $this->belongsTo(SalaryStructure::class, 'salary_structure_id');
     }
 
-    public function deduction(): \Illuminate\Database\Eloquent\Relations\BelongsTo
-    {
-        return $this->belongsTo(SalaryDeduction::class, 'salary_deduction_id');
-    }
 
     #[Scope]
     public function scopeSearch(Builder $query, $value): void

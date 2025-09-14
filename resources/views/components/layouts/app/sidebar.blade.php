@@ -9,14 +9,14 @@
 
     <body class="min-h-screen bg-white dark:bg-zinc-800">
     <flux:sidebar sticky stashable class="bg-zinc-50 dark:bg-zinc-900 border-r rtl:border-r-0 rtl:border-l border-zinc-200 dark:border-zinc-700">
-        <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
-{{--Brand logo--}}
-        <div class="flex items-center space-x-2">
-            <flux:avatar size="xl" src="{{ asset('/logo.png') }}" />
-            <p class="text-lg text-green-700 dark:text-white font-semibold hidden sm:block">SMS</p>
-        </div>
-        <flux:separator />
-{{--Sidebar Menu--}}
+        <flux:sidebar.toggle class="block lg:hidden" icon="x-mark" />
+        {{--Brand logo--}}
+                <div class="flex items-center space-x-2">
+                    <flux:avatar size="xl" src="{{ asset('/logo.png') }}" />
+                    <p class="text-lg text-green-700 dark:text-white font-semibold hidden sm:block">SMS</p>
+                </div>
+                <flux:separator />
+        {{--Sidebar Menu--}}
         <flux:navlist variant="outline">
             <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
             <flux:navlist.group heading="User Management" expandable>
@@ -92,7 +92,7 @@
 {{--Navbar menu--}}
     <flux:header class="fixed left-60 top-0 right-0 block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
         <flux:navbar scrollable class="w-full">
-            <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
+            <flux:sidebar.toggle class="block lg:hidden" icon="bars-2" inset="left" />
                 <p class="text-2xl text-indigo-700 font-bold mx-2 hidden md:block dark:text-white">DigiPaeds School System</p>
                 <flux:separator vertical/>
                 <flux:heading size="lg" level="1" class="ml-4 hidden md:block">{{ $navbarHeading ?? ''}}</flux:heading>

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('teacher_id')->nullable();
             $table->string('staff_id')->nullable();
             $table->unsignedBigInteger('salary_structure_id');
-            $table->unsignedBigInteger('salary_deduction_id');
 
             $table->decimal('gross_salary', 10, 2);
             $table->decimal('total_deduction', 10, 2);
@@ -29,7 +28,8 @@ return new class extends Migration
             $table->foreign('teacher_id')->references('teacher_id')->on('teachers')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('staff_id')->references('staff_id')->on('staffs')->onDelete('restrict')->onUpdate('cascade');
             $table->foreign('salary_structure_id')->references('id')->on('salary_structures')->onDelete('restrict')->onUpdate('cascade');
-            $table->foreign('salary_deduction_id')->references('id')->on('salary_deductions')->onDelete('restrict')->onUpdate('cascade');
+            $table->unique(['teacher_id', 'payment_date'], 'unique_teacher_salary');
+            $table->unique(['staff_id', 'payment_date'], 'unique_staff_salary');
         });
     }
 
