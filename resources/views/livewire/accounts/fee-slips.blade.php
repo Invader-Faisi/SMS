@@ -1,6 +1,7 @@
 <?php
 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Flux\Flux;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\View\View;
@@ -16,7 +17,7 @@ new
 class extends Component {
     use WithPagination;
 
-    public string $navbarHeading = "Fee Slips";    
+    public string $navbarHeading = "Fee Slips";
 
     public function rendering(View $view): void
     {
@@ -29,7 +30,7 @@ class extends Component {
 
     public $id;
     public $due_date;
-    public $amount;    
+    public $amount;
     public $studentId;
     public $studentName;
     public $studentImage;
@@ -70,7 +71,7 @@ class extends Component {
         ];
     }
 
-    public function showFee(\App\Services\AccountManagementServices $feeServices, $id)
+    public function showFee(\App\Services\AccountManagementServices $feeServices, $id): void
     {
         $fee = $feeServices->getMonthlyFeeById($id);
         if ($fee) {
@@ -80,21 +81,21 @@ class extends Component {
             $this->due_date = Carbon::parse($fee->due_date)->format('Y-m-d');
 
             Flux::modal('update-fee-modal')->show();
-        } 
+        }
     }
 
-    public function updateFees(\App\Services\AccountManagementServices $feeServices)
+    public function updateFees(\App\Services\AccountManagementServices $feeServices): void
     {
         $this->validate([
-            'due_date' => ['required','date'],
-            'amount' => ['required','numeric','min:0'],
+            'due_date' => ['required', 'date'],
+            'amount' => ['required', 'numeric', 'min:0'],
         ]);
 
         $fee = $feeServices->getMonthlyFeeById($this->id);
         if ($fee) {
             $fee->due_date = $this->due_date;
             $fee->amount = $this->amount;
-            $fee->pending_amount = $this->amount; 
+            $fee->pending_amount = $this->amount;
             $fee->save();
 
             $this->dispatch('notify', type: 'success', message: 'Fee Updated successfully.');
@@ -105,55 +106,55 @@ class extends Component {
         $this->reset();
     }
 
-    public function payFee($studentId, $month, \App\Services\AccountManagementServices $feeServices)
-    {   
+    public function payFee($studentId, $month, \App\Services\AccountManagementServices $feeServices): void
+    {
         $this->studentId = $studentId;
         $this->feeMonth = $month;
         $fees = $feeServices->getMonthlyFeesByStudentAndMonth($studentId, $month);
         //dd($fees);
-        if($fees && $fees->count() > 0){
+        if ($fees && $fees->count() > 0) {
             $this->studentFees = $fees;
             $this->studentName = $fees->first()->student->name;
             $this->studentImage = $fees->first()->student->image;
             $this->totalFee = $fees->sum('pending_amount');
             Flux::modal('pay-fee-modal')->show();
-        }else{
+        } else {
             $this->dispatch('notify', type: 'warning', message: 'No Fees Found for the selected month.');
         }
     }
 
-    public function feePayment($studentId, $month, \App\Services\AccountManagementServices $feeServices)
-    {   
+    public function feePayment($studentId, $month, \App\Services\AccountManagementServices $feeServices): void
+    {
         $this->validate([
-            'paidFee' => ['required','numeric','min:0'],
+            'paidFee' => ['required', 'numeric', 'min:0'],
         ]);
 
         $fees = $feeServices->getMonthlyFeesByStudentAndMonth($studentId, $month);
-        if($fees && $fees->count() > 0){
+        if ($fees && $fees->count() > 0) {
             $totalFee = $fees->sum('pending_amount');
-            if($this->paidFee > $totalFee){
+            if ($this->paidFee > $totalFee) {
                 $this->dispatch('notify', type: 'warning', message: 'Paid amount exceeds total fee.');
                 return;
             }
 
             $remainingAmount = $this->paidFee;
 
-            foreach($fees as $fee){
-                if($remainingAmount <= 0){
+            foreach ($fees as $fee) {
+                if ($remainingAmount <= 0) {
                     break;
                 }
 
-                if($fee->status == 'paid'){
+                if ($fee->status == 'paid') {
                     continue; // Already paid fees
                 }
 
-                if($remainingAmount >= $fee->pending_amount){
-                    // Full payment for this fee 
+                if ($remainingAmount >= $fee->pending_amount) {
+                    // Full payment for this fee
                     $remainingAmount -= $fee->pending_amount;
                     $fee->pending_amount = 0;
                     $fee->status = 'paid';
                 } else {
-                    // Partial payment for this fee                    
+                    // Partial payment for this fee
                     $fee->pending_amount = $fee->pending_amount - $remainingAmount;
                     $fee->status = 'partial';
                     $remainingAmount = 0;
@@ -161,29 +162,29 @@ class extends Component {
                 $fee->save();
             }
 
-                $student = $fees->first()->student;
-                $pdf = Pdf::loadView('livewire.accounts.partials.fee-slip', [
-                    'student' => $student,
-                    'fees' => $fees,
-                    'paidFee' => $this->paidFee,
-                    'date' => now()->format('d-m-Y'),
-                    'totalAmount' => $fees->sum('amount'),
-                    'totalPending' => $fees->sum('pending_amount'),
-                ]);
+            $student = $fees->first()->student;
+            $pdf = Pdf::loadView('livewire.accounts.partials.fee-slip', [
+                'student' => $student,
+                'fees' => $fees,
+                'paidFee' => $this->paidFee,
+                'date' => now()->format('d-m-Y'),
+                'totalAmount' => $fees->sum('amount'),
+                'totalPending' => $fees->sum('pending_amount'),
+            ]);
 
-                $fileName = 'fee-slip-' . $student->student_id . '-' . $month . '-'.now()->timestamp. '.pdf';
-                $home = getenv('USERPROFILE') ?: getenv('HOME'); 
-                $desktop = $home . DIRECTORY_SEPARATOR . 'Desktop' . DIRECTORY_SEPARATOR . 'pay slips' . DIRECTORY_SEPARATOR;
+            $fileName = 'fee-slip-' . $student->student_id . '-' . $month . '-' . now()->timestamp . '.pdf';
+            $home = getenv('USERPROFILE') ?: getenv('HOME');
+            $desktop = $home . DIRECTORY_SEPARATOR . 'Desktop' . DIRECTORY_SEPARATOR . 'pay slips' . DIRECTORY_SEPARATOR;
 
-                if (!file_exists($desktop)) {
-                    mkdir($desktop, 0777, true);
-                }
+            if (!file_exists($desktop)) {
+                mkdir($desktop, 0777, true);
+            }
 
-                $pdf->save($desktop . $fileName);
-                
+            $pdf->save($desktop . $fileName);
+
             $this->dispatch('notify', type: 'success', message: 'Fee Payment processed successfully.');
             Flux::modal('pay-fee-modal')->close();
-        }else{
+        } else {
             $this->dispatch('notify', type: 'warning', message: 'No Fees Found for the selected month.');
         }
         $this->reset();
@@ -244,85 +245,89 @@ class extends Component {
             <table class="w-full text-left text-sm text-on-surface dark:text-on-surface-dark">
                 <thead
                     class="border-b border-outline bg-surface-alt text-sm text-on-surface-strong dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
-                    <tr>
-                        <th scope="col" class="p-4">Fee Name</th>
-                        <th scope="col" class="p-4">Amount</th>
-                        <th scope="col" class="p-4">Due Date</th>
-                        <th scope="col" class="p-4">Status</th>
-                        <th scope="col" class="p-4">Action</th>
-                    </tr>
+                <tr>
+                    <th scope="col" class="p-4">Fee Name</th>
+                    <th scope="col" class="p-4">Amount</th>
+                    <th scope="col" class="p-4">Due Date</th>
+                    <th scope="col" class="p-4">Status</th>
+                    <th scope="col" class="p-4">Action</th>
+                </tr>
                 </thead>
+                @php
+                    $groupedFees = $fees->count() > 0
+                        ? $fees->getCollection()->groupBy(fn($fee) => $fee->student->student_id . '-' . \Carbon\Carbon::parse($fee->due_date)->format('F Y'))
+                        : collect();
+                @endphp
+                <tbody class="divide-y divide-outline dark:divide-outline-dark">
+                @forelse($groupedFees as $key => $studentMonthFees)
                     @php
-                        $groupedFees = $fees->count() > 0
-                            ? $fees->getCollection()->groupBy(fn($fee) => $fee->student->student_id . '-' . \Carbon\Carbon::parse($fee->due_date)->format('F Y'))
-                            : collect();
+                        $firstFee = $studentMonthFees->first();
                     @endphp
-                    <tbody class="divide-y divide-outline dark:divide-outline-dark">
-                        @forelse($groupedFees as $key => $studentMonthFees)
-                            @php
-                                $firstFee = $studentMonthFees->first();
-                            @endphp
 
-                            @if($firstFee && $firstFee->student)
-                                @php
-                                    $student = $firstFee->student;
-                                    $monthName = \Carbon\Carbon::parse($firstFee->due_date)->format('F Y');
-                                    $totalAmount = $studentMonthFees->sum('amount');
-                                    $pendingAmount = $studentMonthFees->sum('pending_amount');
-                                @endphp
+                    @if($firstFee && $firstFee->student)
+                        @php
+                            $student = $firstFee->student;
+                            $monthName = \Carbon\Carbon::parse($firstFee->due_date)->format('F Y');
+                            $totalAmount = $studentMonthFees->sum('amount');
+                            $pendingAmount = $studentMonthFees->sum('pending_amount');
+                        @endphp
 
-                                {{-- Student + Month Header --}}
-                                <tr class="bg-gray-200 dark:bg-gray-700 font-bold">
-                                    <td colspan="5" class="p-4">
-                                        <div class="flex justify-between items-center">
-                                            <span>{{ $student->name }} ({{ $student->class }}) - {{ $monthName }}</span>
-                                            <flux:button variant="primary" color="cyan" size="xs" icon="plus-circle" class="cursor-pointer"
-                                                wire:click="payFee('{{ $student->student_id }}', '{{ $monthName }}')">
-                                                Fee Payment
-                                            </flux:button>
-                                        </div>
-                                    </td>
-                                </tr>
+                        {{-- Student + Month Header --}}
+                        <tr class="bg-gray-200 dark:bg-gray-700 font-bold">
+                            <td colspan="5" class="p-4">
+                                <div class="flex justify-between items-center">
+                                    <span>{{ $student->name }} ({{ $student->class }}) - {{ $monthName }}</span>
+                                    <flux:button variant="primary" color="cyan" size="xs" icon="plus-circle"
+                                                 class="cursor-pointer"
+                                                 wire:click="payFee('{{ $student->student_id }}', '{{ $monthName }}')">
+                                        Fee Payment
+                                    </flux:button>
+                                </div>
+                            </td>
+                        </tr>
 
-                                {{-- Fee Entries --}}
-                                @foreach($studentMonthFees as $fee)
-                                    <tr>
-                                        <td class="p-4">{{ $fee->feeStructure->name }}</td>
-                                        <td class="p-4">{{ $fee->amount }}</td>
-                                        <td class="p-4">{{ \Carbon\Carbon::parse($fee->due_date)->format('d-m-Y') }}</td>
-                                        <td class="p-4">
-                                            @php
-                                                $status = strtolower($fee->status);
-                                                $color = match ($status) {
-                                                    'paid' => 'green',
-                                                    'pending' => 'red',
-                                                    default => 'yellow',
-                                                };
-                                            @endphp
-                                            <flux:badge color="{{ $color }}" size="sm" inset="top bottom">{{ ucfirst($fee->status) }}</flux:badge>
-                                        </td>
-                                        <td class="p-4">
-                                            @if(in_array($fee->status, ['pending', 'partial']))
-                                                <flux:button variant="primary" color="yellow" size="xs" icon="pencil" class="cursor-pointer"
-                                                    wire:click="showFee({{ $fee->id }})">Edit</flux:button>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
+                        {{-- Fee Entries --}}
+                        @foreach($studentMonthFees as $fee)
+                            <tr>
+                                <td class="p-4">{{ $fee->feeStructure->name }}</td>
+                                <td class="p-4">{{ $fee->amount }}</td>
+                                <td class="p-4">{{ \Carbon\Carbon::parse($fee->due_date)->format('d-m-Y') }}</td>
+                                <td class="p-4">
+                                    @php
+                                        $status = strtolower($fee->status);
+                                        $color = match ($status) {
+                                            'paid' => 'green',
+                                            'pending' => 'red',
+                                            default => 'yellow',
+                                        };
+                                    @endphp
+                                    <flux:badge color="{{ $color }}" size="sm"
+                                                inset="top bottom">{{ ucfirst($fee->status) }}</flux:badge>
+                                </td>
+                                <td class="p-4">
+                                    @if(in_array($fee->status, ['pending', 'partial']))
+                                        <flux:button variant="primary" color="yellow" size="xs" icon="pencil"
+                                                     class="cursor-pointer"
+                                                     wire:click="showFee({{ $fee->id }})">Edit
+                                        </flux:button>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
 
-                                {{-- Totals --}}
-                                <tr class="bg-gray-100 font-bold">
-                                    <td class="p-4 text-right">Total</td>
-                                    <td class="p-4">{{ $totalAmount }}</td>
-                                    <td class="p-4 text-right">Pending</td>
-                                    <td class="p-4">{{ $pendingAmount }}</td>
-                                    <td></td>
-                                </tr>                            
-                            @endif 
-                        @empty
-                         <flux:callout variant="danger" icon="x-circle" heading="No Record Found !!!" />
-                        @endforelse
-                    </tbody>               
+                        {{-- Totals --}}
+                        <tr class="bg-gray-100 font-bold">
+                            <td class="p-4 text-right">Total</td>
+                            <td class="p-4">{{ $totalAmount }}</td>
+                            <td class="p-4 text-right">Pending</td>
+                            <td class="p-4">{{ $pendingAmount }}</td>
+                            <td></td>
+                        </tr>
+                    @endif
+                @empty
+                    <flux:callout variant="danger" icon="x-circle" heading="No Record Found !!!"/>
+                @endforelse
+                </tbody>
             </table>
 
             <flux:separator variant="subtle"/>
@@ -353,15 +358,16 @@ class extends Component {
 
     {{-- Fee Payment Modal --}}
     <flux:modal name="pay-fee-modal">
-        <article class="group flex rounded-radius max-w-sm flex-col overflow-hidden border border-outline bg-surface-alt text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark">
+        <article
+            class="group flex rounded-radius max-w-sm flex-col overflow-hidden border border-outline bg-surface-alt text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark">
             <!-- Image -->
-            <div class="h-44 md:h-64 overflow-hidden"> 
-                <img 
-                    src="{{ $studentImage && file_exists(storage_path('app/public/' . $studentImage)) 
-                            ? asset('storage/' . $studentImage) 
-                            : asset('storage/users/students/student.png') }}" 
-                    class="object-contain transition duration-700 ease-out group-hover:scale-105" 
-                    alt="Student" 
+            <div class="h-44 md:h-64 overflow-hidden">
+                <img
+                    src="{{ $studentImage && file_exists(storage_path('app/public/' . $studentImage))
+                            ? asset('storage/' . $studentImage)
+                            : asset('storage/users/students/student.png') }}"
+                    class="object-contain transition duration-700 ease-out group-hover:scale-105"
+                    alt="Student"
                 />
             </div>
 
@@ -371,7 +377,8 @@ class extends Component {
                 <div class="flex flex-col md:flex-row gap-4 md:gap-12 justify-between">
                     <!-- Title & Rating -->
                     <div class="flex flex-col">
-                        <h3 class="text-lg lg:text-xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong" aria-describedby="productDescription">{{$studentName}}</h3>                        
+                        <h3 class="text-lg lg:text-xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong"
+                            aria-describedby="productDescription">{{$studentName}}</h3>
                     </div>
                     <span class="text-lg"><span class="sr-only">Total Fee</span>Rs : {{$totalFee}}</span>
                 </div>
@@ -382,22 +389,22 @@ class extends Component {
                         <span class="text-sm">{{Carbon::parse($fee->due_date)->format('d-m-Y')}}</span>
                     </div>
                 @empty
-                    
+
                 @endforelse
                 <flux:input label="Paid Fee" type="number" wire:model="paidFee" class="w-full"/>
                 <!-- Button -->
-                
+
                 <div class="flex justify-end gap-2 mt-4">
                     <flux:button variant="filled" class="cursor-pointer"
-                                x-on:click="$flux.modal('pay-fee-modal').close()">Cancel
+                                 x-on:click="$flux.modal('pay-fee-modal').close()">Cancel
                     </flux:button>
                     <flux:button variant="primary" color="emerald" icon="check" class="cursor-pointer"
-                             wire:click="feePayment('{{ $studentId }}', '{{ $feeMonth }}')">
+                                 wire:click="feePayment('{{ $studentId }}', '{{ $feeMonth }}')">
                              <span wire:loading>
                                 <flux:icon.loading class="animate-spin mr-2"/>
                             </span>
-                    Paid
-                </flux:button>
+                        Paid
+                    </flux:button>
                 </div>
             </div>
         </article>

@@ -33,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('accounts', 'accounts.fee-structure')->name('fee-structure');
     Volt::route('accounts/fee', 'accounts.fees')->name('fees');
     Volt::route('accounts/fee-slips', 'accounts.fee-slips')->name('fee-slips');
+    Volt::route('accounts/salary-structure', 'accounts.salary-structure')->name('salary-structure');
+    Volt::route('accounts/salary-deduction', 'accounts.salary-deduction')->name('salary-deduction');
+    Volt::route('accounts/salaries', 'accounts.salary')->name('salaries');
 
 
     // Settings

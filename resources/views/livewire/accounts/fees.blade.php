@@ -15,6 +15,7 @@ class extends Component {
     public string $navbarHeading = "Monthly Fees";
 
     public $month;
+    public $year;
 
     public function rendering(View $view): void
     {
@@ -55,6 +56,7 @@ class extends Component {
                 $this->sortedBy,
                 $this->sortDirection,
                 $this->month,
+                $this->year,
             ),
         ];
     }
@@ -77,7 +79,7 @@ class extends Component {
         }
     }
 
-    public function showOneTime($feeId, $class, \App\Services\AccountManagementServices $feeServices)
+    public function showOneTime($feeId, $class, \App\Services\AccountManagementServices $feeServices): void
     {
         $fee = $feeServices->getMonthlyFeeById($feeId);
         $this->studentId = $fee->student_id;
@@ -224,18 +226,30 @@ class extends Component {
                                 <td class="p-4">{{ $fee->amount }}</td>
                                 <td class="p-4">{{ Carbon::parse($fee->due_date)->format('F Y') }}</td>
                                 <td class="p-4">{{ Carbon::parse($fee->due_date)->format('d-m-Y') }}</td>
-                                <td class="p-4">{{ $fee->status }}</td>
                                 <td class="p-4">
+                                    @php
+                                        $status = strtolower($fee->status);
+                                        $color = match ($status) {
+                                            'paid' => 'green',
+                                            'pending' => 'red',
+                                            default => 'yellow',
+                                        };
+                                    @endphp
+                                    <flux:badge color="{{ $color }}" size="sm" inset="top bottom">{{ ucfirst($fee->status) }}</flux:badge>
+                                </td>
+                                <td class="p-4">
+                                    @if($fee->status !== 'paid')
                                     <div class="flex gap-2">
-                                        <flux:button variant="primary" color="yellow" size="xs" icon="plus-circle"
+                                        <flux:button variant="primary" color="yellow" size="xs" icon="plus-circle" class="cursor-pointer"
                                                      wire:click="showOneTime({{ $fee->id }}, '{{ $fee->student->class }}')">
                                             One Time
                                         </flux:button>
-                                        <flux:button variant="primary" color="emerald" size="xs" icon="plus-circle"
+                                        <flux:button variant="primary" color="emerald" size="xs" icon="plus-circle" class="cursor-pointer"
                                                      wire:click="showAnnual({{ $fee->id }}, '{{ $fee->student->class }}')">
                                             Annual
                                         </flux:button>
                                     </div>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

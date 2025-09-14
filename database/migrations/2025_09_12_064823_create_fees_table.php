@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('due_date');
             $table->decimal('pending_amount', 10, 2);
             $table->enum('status', ['pending', 'paid', 'partial'])->default('pending');
-            $table->timestamp('paid_at')->nullable();;
+            $table->timestamp('paid_at')->nullable();
             $table->foreign('student_id')
                 ->references('student_id')
                 ->on('students')

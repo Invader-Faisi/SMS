@@ -34,6 +34,9 @@
                 <flux:navlist.item icon="banknotes" :href="route('fee-structure')" :current="request()->routeIs('fee-structure')" wire:navigate>{{ __('Fee Structure') }}</flux:navlist.item>
                 <flux:navlist.item icon="currency-dollar" :href="route('fees')" :current="request()->routeIs('fees')" wire:navigate>{{ __('Fees') }}</flux:navlist.item>
                 <flux:navlist.item icon="folder-arrow-down" :href="route('fee-slips')" :current="request()->routeIs('fee-slips')" wire:navigate>{{ __('Fee Slips') }}</flux:navlist.item>
+                <flux:navlist.item icon="banknotes" :href="route('salary-structure')" :current="request()->routeIs('salary-structure')" wire:navigate>{{ __('Salary Structure') }}</flux:navlist.item>
+                <flux:navlist.item icon="minus-circle" :href="route('salary-deduction')" :current="request()->routeIs('salary-deduction')" wire:navigate>{{ __('Salary Deductions') }}</flux:navlist.item>
+                <flux:navlist.item icon="currency-dollar" :href="route('salaries')" :current="request()->routeIs('salaries')" wire:navigate>{{ __('Salaries') }}</flux:navlist.item>
             </flux:navlist.group>
             <flux:navlist.item href="#" icon="list-bullet">Transactions</flux:navlist.item>
         </flux:navlist>
