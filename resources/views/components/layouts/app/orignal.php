@@ -1,23 +1,13 @@
-@props(['title' => null, 'navbarHeading' => null])
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-{{--Head--}}
-<head>
-        @include('partials.head')
-        @fluxAppearance
-    </head>
-
-<body class="min-h-screen bg-white dark:bg-zinc-800">
-    <flux:sidebar sticky collapsible="mobile" class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
-        <flux:sidebar.header>
-            <div class="flex items-center space-x-2">
-                <flux:avatar size="xl" src="{{ asset('/logo.png') }}" />
-                <p class="text-lg text-green-700 dark:text-white font-semibold hidden sm:block">SMS</p>
-            </div>
-            <flux:sidebar.collapse class="lg:hidden" />
-        </flux:sidebar.header>
-        <flux:separator />
-        <flux:sidebar.nav>
+<flux:sidebar sticky stashable class="bg-zinc-50 dark:bg-zinc-900 border-r rtl:border-r-0 rtl:border-l border-zinc-200 dark:border-zinc-700">
+        <flux:sidebar.toggle class="block lg:hidden" icon="x-mark" />
+        {{--Brand logo--}}
+                <div class="flex items-center space-x-2">
+                    <flux:avatar size="xl" src="{{ asset('/logo.png') }}" />
+                    <p class="text-lg text-green-700 dark:text-white font-semibold hidden sm:block">SMS</p>
+                </div>
+                <flux:separator />
+        {{--Sidebar Menu--}}
+        <flux:navlist variant="outline">
             <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
             <flux:navlist.group heading="User Management" expandable>
                 <flux:navlist.item icon="book-open" :href="route('admin.teacher')" :current="request()->routeIs('admin.teacher')" wire:navigate>{{ __('Teachers') }}</flux:navlist.item>
@@ -39,14 +29,13 @@
                 <flux:navlist.item icon="currency-dollar" :href="route('salaries')" :current="request()->routeIs('salaries')" wire:navigate>{{ __('Salaries') }}</flux:navlist.item>
             </flux:navlist.group>
             <flux:navlist.item href="#" icon="list-bullet">Transactions</flux:navlist.item>
-        </flux:sidebar.nav>
+        </flux:navlist>
+        <flux:spacer />
+{{--    Show in mobile mode--}}
+        <flux:navlist.item href="#" icon="list-bullet" class="lg:hidden lg:block">Settings</flux:navlist.item>
+        <flux:dropdown class="lg:hidden lg:block" position="bottom" align="start">
 
-        <flux:sidebar.spacer />
-
-        <flux:sidebar.nav>
-            <flux:sidebar.item icon="cog-6-tooth" href="#">Settings</flux:sidebar.item>
-            <flux:dropdown class="lg:hidden lg:block" position="bottom" align="start">
-            <flux:profile 
+            <flux:profile
                 :name="auth()->user()->username"
                 :initials="auth()->user()->initials()"
                 icon:trailing="chevrons-up-down"
@@ -88,16 +77,16 @@
                 </form>
             </flux:menu>
         </flux:dropdown>
-        </flux:sidebar.nav>
     </flux:sidebar>
-    
-    <flux:header class="block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
-        <flux:navbar class="w-full">
+
+{{--Navbar menu--}}
+    <flux:header class="fixed left-60 top-0 right-0 block! bg-white lg:bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-700">
+        <flux:navbar scrollable class="w-full">
             <flux:sidebar.toggle class="block lg:hidden" icon="bars-2" inset="left" />
-                <p class="text-2xl text-indigo-700 font-bold mx-2 md:block dark:text-white">DigiPaeds School System</p>
+                <p class="text-2xl text-indigo-700 font-bold mx-2 hidden md:block dark:text-white">DigiPaeds School System</p>
                 <flux:separator vertical/>
                 <flux:heading size="lg" level="1" class="ml-4 hidden md:block">{{ $navbarHeading ?? ''}}</flux:heading>
-                <flux:spacer class="hidden md:block"/>
+                <flux:spacer class="flex-grow"/>
             <flux:navlist variant="outline" class="hidden md:block">
                 <flux:navlist.item href="#" icon="list-bullet">Settings</flux:navlist.item>
             </flux:navlist>
@@ -149,13 +138,3 @@
             </flux:dropdown>
         </flux:navbar>
     </flux:header>
-    
-
-
-    {{ $slot }}
-
-
-    @fluxScripts
-
-</body>
-</html>

@@ -187,7 +187,7 @@ class extends Component {
 
 }; ?>
 
-<section class="mt-12 p-2">
+<section>
     {{-- Teacher Table--}}
     <div class="space-y-2">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-3">

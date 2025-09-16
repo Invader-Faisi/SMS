@@ -87,7 +87,7 @@ class extends Component {
 
 }; ?>
 
-<section class="mt-12 p-2 space-y-4">
+<section class="space-y-2">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between w-full gap-3 p-2">
         <div class="w-full">
             <flux:input wire:model.live.debounce.1000ms="search" icon="magnifying-glass" placeholder="Search Class..."

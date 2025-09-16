@@ -36,7 +36,7 @@ class extends Component {
 
 ?>
 
-<section class="pt-12 p-2">
+<section class="space-y-2">
     <div class="overflow-hidden w-full overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
         <table class="w-full text-left text-sm text-on-surface dark:text-on-surface-dark">
             <!-- Table Head -->

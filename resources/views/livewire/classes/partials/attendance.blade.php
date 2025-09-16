@@ -65,8 +65,8 @@ class extends Component {
 };
 ?>
 
-<section class="mt-12 p-2">
-    <div class="space-y-4">
+<section>
+    <div class="space-y-2">
         {{-- Month Selector --}}
         <div class="flex flex-col sm:flex-row justify-between items-center w-full gap-2">
             <div class="w-40">
