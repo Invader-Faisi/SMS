@@ -44,7 +44,10 @@
         <flux:sidebar.spacer />
 
         <flux:sidebar.nav>
-            <flux:sidebar.item icon="cog-6-tooth" href="#">Settings</flux:sidebar.item>
+            <flux:sidebar.item icon="bell" href="#">
+                Settings
+                <flux:badge color="cyan">Cyan</flux:badge>
+            </flux:sidebar.item>
             <flux:dropdown class="lg:hidden lg:block" position="bottom" align="start">
             <flux:profile 
                 :name="auth()->user()->username"
@@ -98,8 +101,11 @@
                 <flux:separator vertical/>
                 <flux:heading size="lg" level="1" class="ml-4 hidden md:block">{{ $navbarHeading ?? ''}}</flux:heading>
                 <flux:spacer class="hidden md:block"/>
-            <flux:navlist variant="outline" class="hidden md:block">
-                <flux:navlist.item href="#" icon="list-bullet">Settings</flux:navlist.item>
+            <flux:navlist variant="outline" class="hidden p-2 md:block">
+                <flux:navlist.item href="#" icon="bell">
+                    Messages
+                    <flux:badge color="lime" size="sm" inset="top right">5</flux:badge>
+                </flux:navlist.item>
             </flux:navlist>
 
             <!-- Desktop User Menu -->

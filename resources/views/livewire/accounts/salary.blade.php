@@ -318,6 +318,7 @@ class extends Component {
             <div class="text-center text-indigo-300 font-bold">
                 {{ $isEditMode ? 'Update '.$page.' For ('.$name. ') '.$designation : 'Add New '.$page. ' For ('.$name. ') '.$designation}}
             </div>
+            <form wire:submit.prevent="{{ $isEditMode ? 'update'.$page : 'save'.$page }}">
             <div class="space-y-3">
                 <div class="flex flex-col space-y-4">
                     <flux:select wire:model="salary_structure_id" :label="__('Structure')" class="w-40">
@@ -326,7 +327,13 @@ class extends Component {
                             @if(($staff_id !== null && $structure->type === 'staff') ||
                                 ($teacher_id !== null && $structure->type === 'teacher'))
                                 <flux:select.option value="{{ $structure->id }}">
-                                    {{ ucfirst($structure->type) }} - {{ ucfirst($structure->category) }}
+                                    {{ ucfirst($structure->type) }} - 
+                                    {{ ucfirst($structure->category)}} - B
+                                    {{ $structure->basic_salary }} - H -
+                                    {{ $structure->house_allowance }} - M - 
+                                    {{ $structure->medical_allowance }} - T -
+                                    {{ $structure->transport_allowance }} - O -
+                                    {{ $structure->other_allowance }}
                                 </flux:select.option>
                             @endif
                         @endforeach
@@ -345,9 +352,11 @@ class extends Component {
                 <flux:button variant="filled" class="cursor-pointer"
                              wire:click="closeModal()">Cancel
                 </flux:button>
-                <flux:button variant="primary" color="blue" class="cursor-pointer" wire:click="save{{ $page }}">Save
+                <flux:button variant="primary" color="blue" class="cursor-pointer">Save
+                    {{ $isEditMode ? 'Update' : 'Save' }}
                 </flux:button>
             </div>
+            </form>
         </div>
     </flux:modal>
 </section>
