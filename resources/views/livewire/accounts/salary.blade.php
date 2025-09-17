@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Salary;
 use Flux\Flux;
 use Illuminate\View\View;
 use Livewire\Attributes\Url;
@@ -99,25 +100,125 @@ class extends Component {
     public function saveSalary(\App\Services\SalaryManagementServices $salaryServices): void
     {
         $this->validateFields();
-        if($this->teacher_id !== null && $this->staff_id === null){
-            $salary = $salaryServices->saveTeacherSalary($this->teacher_id,$this->salary_structure_id,$this->account,$this->payment_method);
-            if ($salary === true) {
-                $this->dispatch('notify', type: 'success', message: 'Salary of teacher ('.$this->name.') added successfully.');
+        if ($this->teacher_id !== null && $this->staff_id === null) {
+            $salary = $this->calculateSalary($this->teacher_id,$this->salary_structure_id, $this->account, $this->payment_method, $salaryServices);
+            $salary['teacher_id'] = $this->teacher_id;
+            $response = $salaryServices->saveSalary($salary);
+            if ($response === true) {
+                $this->dispatch('notify', type: 'success', message: 'Salary of teacher (' . $this->name . ') added successfully.');
             } else {
+                $this->dispatch('notify', type: 'error', message: $response);
+            }
+        }
+        if ($this->teacher_id === null && $this->staff_id !== null) {
+            $salary = $this->calculateSalary($this->staff_id,$this->salary_structure_id, $this->account, $this->payment_method, $salaryServices);
+            $salary['staff_id'] = $this->staff_id;
+            $response = $salaryServices->saveSalary($salary);
+            if ($response === true) {
+                $this->dispatch('notify', type: 'success', message: 'Salary of staff (' . $this->name . ') added successfully.');
+            } else {
+                $this->dispatch('notify', type: 'error', message: $response);
+            }
+        }
+
+        $this->closeModal();
+
+    }
+
+    public function showSalary(\App\Services\SalaryManagementServices $salaryServices, $id): void
+    {
+        $this->id = $id;
+        $salary = $salaryServices->getSalary($this->id);
+
+        if($salary)
+        {
+            $this->isEditMode = true;
+            $this->name = $salary->staff_id === null ? $salary->teacher->name : $salary->staff->name;
+            $this->designation = $salary->staff_id === null ? $salary->teacher->designation : $salary->staff->designation;
+            $this->teacher_id = $salary->teacher_id;
+            $this->staff_id = $salary->staff_id;
+            $this->salary_structure_id = $salary->salary_structure_id;
+            $this->account = $salary->account;
+            $this->payment_method = $salary->payment_method;
+
+            Flux::modal('add-' . $this->page)->show();
+        }else{
+            $this->closeModal();
+            $this->dispatch('notify', type: 'info', message: 'Salary Not Found !!!');
+        }
+    }
+    public function updateSalary(\App\Services\SalaryManagementServices $salaryServices): void
+    {
+        $salary = $salaryServices->getSalary($this->id);
+
+        $this->validateFields();
+
+        if ($this->teacher_id !== null && $this->staff_id === null) {
+            $newSalary = $this->calculateSalary($this->teacher_id, $this->salary_structure_id, $this->account, $this->payment_method, $salaryServices);
+            if($salary){
+                $salary = $this->updateNewSalary($salary, $newSalary);
+                $salary['teacher_id'] = $this->teacher_id;
+                $salary->save();
+                $this->dispatch('notify', type: 'success', message: 'Salary of teacher (' . $this->name . ') updated successfully.');
+            }else{
                 $this->dispatch('notify', type: 'error', message: $salary);
             }
         }
-        if($this->teacher_id === null && $this->staff_id !== null){
-            $salary = $salaryServices->saveStaffSalary($this->staff_id,$this->salary_structure_id,$this->account,$this->payment_method);
-            if ($salary === true) {
-                $this->dispatch('notify', type: 'success', message: 'Salary of staff ('.$this->name.') added successfully.');
-            } else {
+        if ($this->teacher_id === null && $this->staff_id !== null) {
+            $newSalary = $this->calculateSalary($this->staff_id, $this->salary_structure_id, $this->account, $this->payment_method, $salaryServices);
+            if($salary){
+                $salary = $this->updateNewSalary($salary, $newSalary);
+                $salary['staff_id'] = $this->staff_id;
+                $salary->save();
+                $this->dispatch('notify', type: 'success', message: 'Salary of Staff (' . $this->name . ') updated successfully.');
+            }else{
                 $this->dispatch('notify', type: 'error', message: $salary);
             }
         }
 
         $this->closeModal();
 
+    }
+
+    private function calculateSalary($id,$strcutureId, $account, $method, \App\Services\SalaryManagementServices $salaryServices): Salary
+    {
+        $month = now()->month;
+        $structure = $salaryServices->getSalaryStructureById($strcutureId);
+
+        $deduction = $salaryServices->getSalaryDeductionByEmployeeId($id, $month);
+
+        $totalDeduction = optional($deduction)->sum(function ($item) {
+            return (floatval($item->amount) * intval($item->multiples));
+        }) ?? 0;
+
+        $salary = new Salary();
+        $newSalary = [
+            'salary_structure_id' => $strcutureId,
+            'gross_salary' => $structure->gross_salary,
+            'total_deduction' => $totalDeduction,
+            'net_salary' => $structure->gross_salary - $totalDeduction,
+            'payment_date' => now()->addMonth()->startOfMonth(),
+            'account' => $account,
+            'payment_method' => $method,
+            'status' => 'Pending',
+        ];
+
+        $salary->fill($newSalary);
+        return $salary;
+    }
+
+    private function updateNewSalary(Salary $salary, Salary $newSalary): Salary
+    {
+        $salary->salary_structure_id = $newSalary->salary_structure_id;
+        $salary->gross_salary = $newSalary->gross_salary;
+        $salary->total_deduction = $newSalary->total_deduction;
+        $salary->net_salary = $newSalary->net_salary;
+        $salary->payment_date = $newSalary->payment_date;
+        $salary->account = $newSalary->account;
+        $salary->payment_method = $newSalary->payment_method;
+        $salary->status = $newSalary->status;
+
+        return $salary;
     }
 
     public function validateFields()
@@ -161,7 +262,8 @@ class extends Component {
                         </flux:select.option>
                     @endforeach
                 </flux:select>
-                <flux:button variant="primary" color="emerald" icon="plus-circle" class="cursor-pointer" wire:click="addSalary">
+                <flux:button variant="primary" color="emerald" icon="plus-circle" class="cursor-pointer"
+                             wire:click="addSalary">
                     Add {{ $page }}
                 </flux:button>
             </div>
@@ -242,8 +344,10 @@ class extends Component {
                                     <img src="{{ asset('storage/' . $salary->teacher->image) }}"
                                          class="size-8 rounded-full object-cover" alt="Teacher Image">
                                     <div class="flex flex-col">
-                                        <span class="text-neutral-900 dark:text-white">{{ $salary->teacher->name }}</span>
-                                        <span class="text-neutral-500 dark:text-white">{{ $salary->teacher->mobile }}</span>
+                                        <span
+                                            class="text-neutral-900 dark:text-white">{{ $salary->teacher->name }}</span>
+                                        <span
+                                            class="text-neutral-500 dark:text-white">{{ $salary->teacher->mobile }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -255,7 +359,8 @@ class extends Component {
                                          class="size-8 rounded-full object-cover" alt="Staff Image">
                                     <div class="flex flex-col">
                                         <span class="text-neutral-900 dark:text-white">{{ $salary->staff->name }}</span>
-                                        <span class="text-neutral-500 dark:text-white">{{ $salary->staff->mobile }}</span>
+                                        <span
+                                            class="text-neutral-500 dark:text-white">{{ $salary->staff->mobile }}</span>
                                     </div>
                                 </div>
                             </td>
@@ -279,19 +384,29 @@ class extends Component {
                                     default => 'yellow',
                                 };
                             @endphp
-                            <flux:badge color="{{ $color }}" size="sm" inset="top bottom">{{ ucfirst($salary->status) }}</flux:badge>
+                            <flux:badge color="{{ $color }}" size="sm"
+                                        inset="top bottom">{{ ucfirst($salary->status) }}</flux:badge>
                         </td>
                         <td class="p-4">
                             <div class="flex items-center justify-between w-full">
                                 <div class="flex gap-2">
-                                    <flux:button variant="primary" color="yellow" size="xs" class="cursor-pointer" tooltip="Edit Salary"
-                                                 wire:click="showTeacher({{ $salary->id }})">
+                                    @if($salary->status !== 'Paid')
+                                    <flux:button variant="primary" color="yellow" size="xs" class="cursor-pointer"
+                                                 tooltip="Edit Salary"
+                                                 wire:click="showSalary({{ $salary->id }})">
                                         <flux:icon.pencil variant="solid" class="size-4"/>
                                     </flux:button>
-                                    <flux:button variant="primary" color="green" size="xs" class="cursor-pointer" tooltip="Pay Salary"
-                                                 wire:click="showTeacher({{ $salary->id }})">
+
+                                    <flux:button variant="primary" color="green" size="xs" class="cursor-pointer"
+                                                 tooltip="Pay Salary" href="{{ route('salary-slip', $salary->id) }}">
                                         <flux:icon.arrow-up-on-square-stack variant="solid" class="size-4"/>
                                     </flux:button>
+                                    @else
+                                        <flux:button variant="primary" color="indigo" size="xs" class="cursor-pointer"
+                                                     tooltip="Salary Paid" href="{{ route('salary-slip', $salary->id) }}">
+                                            <flux:icon.arrow-up-on-square-stack variant="solid" class="size-4"/>
+                                        </flux:button>
+                                    @endif
                                 </div>
                             </div>
                         </td>
@@ -312,50 +427,50 @@ class extends Component {
         </div>
     </div>
 
-{{--    salary model--}}
+    {{--    salary model--}}
     <flux:modal name="add-{{ $page }}" class="w-full max-w-2xl">
         <div class="space-y-6">
             <div class="text-center text-indigo-300 font-bold">
                 {{ $isEditMode ? 'Update '.$page.' For ('.$name. ') '.$designation : 'Add New '.$page. ' For ('.$name. ') '.$designation}}
             </div>
             <form wire:submit.prevent="{{ $isEditMode ? 'update'.$page : 'save'.$page }}">
-            <div class="space-y-3">
-                <div class="flex flex-col space-y-4">
-                    <flux:select wire:model="salary_structure_id" :label="__('Structure')" class="w-40">
-                        <flux:select.option value="null">Select Structure...</flux:select.option>
-                        @foreach($structures as $structure)
-                            @if(($staff_id !== null && $structure->type === 'staff') ||
-                                ($teacher_id !== null && $structure->type === 'teacher'))
-                                <flux:select.option value="{{ $structure->id }}">
-                                    {{ ucfirst($structure->type) }} - 
-                                    {{ ucfirst($structure->category)}} - B
-                                    {{ $structure->basic_salary }} - H -
-                                    {{ $structure->house_allowance }} - M - 
-                                    {{ $structure->medical_allowance }} - T -
-                                    {{ $structure->transport_allowance }} - O -
-                                    {{ $structure->other_allowance }}
-                                </flux:select.option>
-                            @endif
-                        @endforeach
-                    </flux:select>
-                    <flux:input wire:model="account" :label="__('Account Number')" class="w-28"/>
-                    <flux:select wire:model="payment_method" :label="__('Method')" class="w-40">
-                        <flux:select.option value="null">Select Method...</flux:select.option>
-                        <flux:select.option value="Cash">Cash</flux:select.option>
-                        <flux:select.option value="Cheque">Cheque</flux:select.option>
-                        <flux:select.option value="Bank Transfer">Bank Transfer</flux:select.option>
-                    </flux:select>
+                <div class="space-y-3">
+                    <div class="flex flex-col space-y-4">
+                        <flux:select wire:model="salary_structure_id" :label="__('Structure')" class="w-40">
+                            <flux:select.option value="null">Select Structure...</flux:select.option>
+                            @foreach($structures as $structure)
+                                @if(($staff_id !== null && $structure->type === 'staff') ||
+                                    ($teacher_id !== null && $structure->type === 'teacher'))
+                                    <flux:select.option value="{{ $structure->id }}">
+                                        {{ ucfirst($structure->type) }} -
+                                        {{ ucfirst($structure->category)}} - B
+                                        {{ $structure->basic_salary }} - H -
+                                        {{ $structure->house_allowance }} - M -
+                                        {{ $structure->medical_allowance }} - T -
+                                        {{ $structure->transport_allowance }} - O -
+                                        {{ $structure->other_allowance }}
+                                    </flux:select.option>
+                                @endif
+                            @endforeach
+                        </flux:select>
+                        <flux:input wire:model="account" :label="__('Account Number')" class="w-28"/>
+                        <flux:select wire:model="payment_method" :label="__('Method')" class="w-40">
+                            <flux:select.option value="null">Select Method...</flux:select.option>
+                            <flux:select.option value="Cash">Cash</flux:select.option>
+                            <flux:select.option value="Cheque">Cheque</flux:select.option>
+                            <flux:select.option value="Bank Transfer">Bank Transfer</flux:select.option>
+                        </flux:select>
+                    </div>
                 </div>
-            </div>
 
-            <div class="flex justify-end gap-2 mt-4">
-                <flux:button variant="filled" class="cursor-pointer"
-                             wire:click="closeModal()">Cancel
-                </flux:button>
-                <flux:button variant="primary" color="blue" class="cursor-pointer">Save
-                    {{ $isEditMode ? 'Update' : 'Save' }}
-                </flux:button>
-            </div>
+                <div class="flex justify-end gap-2 mt-4">
+                    <flux:button variant="filled" class="cursor-pointer"
+                                 wire:click="closeModal()">Cancel
+                    </flux:button>
+                    <flux:button type="submit" wire:loading.attr="disabled" wire:target="salary_structure_id" variant="primary" color="blue" class="cursor-pointer">
+                        {{ $isEditMode ? 'Update' : 'Save' }}
+                    </flux:button>
+                </div>
             </form>
         </div>
     </flux:modal>

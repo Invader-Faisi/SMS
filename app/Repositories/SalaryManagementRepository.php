@@ -146,4 +146,13 @@ class SalaryManagementRepository
         }
     }
 
+    public function getSalaryData(mixed $id)
+    {
+        try{
+            return Salary::findOrFail($id);
+        }catch (\Exception $e){
+            return 'Error: ' . $e->getMessage();
+        }
+    }
+
 }

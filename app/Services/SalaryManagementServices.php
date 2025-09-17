@@ -52,6 +52,11 @@ class SalaryManagementServices
         return $this->salaryManagementRepository->getSalaryDeductionByIdData($id);
     }
 
+    public function getSalaryDeductionByEmployeeId(string $id,mixed $month)
+    {
+        return $this->salaryManagementRepository->getSalaryDeductionByEmployeeIdData($id,$month);
+    }
+
     public function getMonthlySalaryList(mixed $search, mixed $perPage, mixed $sortedBy, mixed $sortDirection,mixed $month,mixed $year)
     {
         return $this->salaryManagementRepository->getMonthlySalaryListData($search, $perPage, $sortedBy, $sortDirection,$month, $year);
@@ -62,12 +67,12 @@ class SalaryManagementServices
         return $this->salaryManagementRepository->getTeachersListData();
     }
 
-    public function getStaffList()
+    public function getStaffList(): \Illuminate\Database\Eloquent\Collection|string
     {
         return $this->salaryManagementRepository->getStaffListData();
     }
 
-    public function getSalaryStructures()
+    public function getSalaryStructures(): \Illuminate\Database\Eloquent\Collection|string
     {
         return $this->salaryManagementRepository->getSalaryStructuresData();
     }
@@ -77,63 +82,14 @@ class SalaryManagementServices
         return $this->salaryManagementRepository->getSalaryDeductionsData();
     }
 
-    public function saveTeacherSalary(mixed $teacher_id, mixed $salary_structure_id, mixed $account, mixed $payment_method): bool|string
+    public function saveSalary(Salary $salary): bool|string
     {
-        $month = now()->month;
-
-        $structure = $this->salaryManagementRepository->getSalaryStructureByIdData($salary_structure_id);
-
-        $deduction = $this->salaryManagementRepository->getSalaryDeductionByEmployeeIdData($teacher_id,$month);
-
-        $totalDeduction = optional($deduction)->sum(function ($item) {
-            return (floatval($item->amount) * intval($item->multiples));
-        }) ?? 0;
-
-        $salary = new Salary();
-        $newSalary = [
-            'teacher_id' => $teacher_id,
-            'salary_structure_id' => $salary_structure_id,
-            'gross_salary' => $structure->gross_salary,
-            'total_deduction' => $totalDeduction,
-            'net_salary' => $structure->gross_salary - $totalDeduction,
-            'payment_date' => now()->addMonth()->startOfMonth(),
-            'account' => $account,
-            'payment_method' => $payment_method,
-            'status' => 'Pending',
-
-        ];
-
-        $salary->fill($newSalary);
         return $this->salaryManagementRepository->saveSalaryData($salary);
     }
 
-    public function saveStaffSalary(mixed $staff_id, mixed $salary_structure_id, mixed $account, mixed $payment_method): bool|string
+    public function getSalary(mixed $id)
     {
-        $month = now()->month;
-
-        $structure = $this->salaryManagementRepository->getSalaryStructureByIdData($salary_structure_id);
-        $deduction = $this->salaryManagementRepository->getSalaryDeductionByEmployeeIdData($staff_id,$month);
-
-        $totalDeduction = optional($deduction)->sum(function ($item) {
-            return (floatval($item->amount) * intval($item->multiples));
-        }) ?? 0;
-
-        $salary = new Salary();
-        $newSalary = [
-            'staff_id' => $staff_id,
-            'salary_structure_id' => $salary_structure_id,
-            'gross_salary' => $structure->gross_salary,
-            'total_deduction' => $totalDeduction,
-            'net_salary' => $structure->gross_salary - $totalDeduction,
-            'payment_date' => now()->addMonth()->startOfMonth(),
-            'account' => $account,
-            'payment_method' => $payment_method,
-            'status' => 'Pending',
-
-        ];
-
-        $salary->fill($newSalary);
-        return $this->salaryManagementRepository->saveSalaryData($salary);
+        return $this->salaryManagementRepository->getSalaryData($id);
     }
 
 }

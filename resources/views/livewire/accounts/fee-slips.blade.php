@@ -2,10 +2,8 @@
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use Flux\Flux;
-use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use Illuminate\View\View;
-use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
